@@ -28,38 +28,38 @@ const AICoachChat = () => {
       icon: "👋",
       title: "첫 만남 & 소개",
       description: "처음 만나는 사람과 스스로 대화",
-      status: "이용",
+      status: "쉬움",
       statusColor: "text-green-500 bg-green-50",
     },
     {
       id: 2,
       icon: "💬",
-      title: "갑둥 상황 대화",
-      description: "억절이 다름 때 길어지게 깨달아기",
-      status: "보류",
+      title: "갈등 상황 대화",
+      description: "의견이 다를 때 원만하게 해결하기",
+      status: "보통",
       statusColor: "text-orange-500 bg-orange-50",
     },
     {
       id: 3,
       icon: "🤔",
       title: "위로와 공감",
-      description: "상대방의 마음을 이해하고 연료하기",
-      status: "보류",
+      description: "상대방의 마음을 이해하고 위로하기",
+      status: "보통",
       statusColor: "text-orange-500 bg-orange-50",
     },
     {
       id: 4,
       icon: "😊",
       title: "칭찬과 격려",
-      description: "기분 수스러나 성취를 함께 기뻐하기",
-      status: "이용",
+      description: "기쁜 소식이나 성취를 함께 기뻐하기",
+      status: "쉬움",
       statusColor: "text-green-500 bg-green-50",
     },
     {
       id: 5,
       icon: "💭",
-      title: "연플 털어",
-      description: "직장에서의 일명한 소통 연습",
+      title: "업무 협의",
+      description: "직장에서의 원활한 소통 연습",
       status: "어려움",
       statusColor: "text-red-500 bg-red-50",
     },
@@ -122,7 +122,7 @@ const AICoachChat = () => {
       <div className="w-80 bg-white border-r flex flex-col">
         {/* Header - Fixed */}
         <div className="p-6 border-b">
-          <h2 className="text-xl font-bold text-gray-800 mb-2">AI 맞먹슬장</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">AI 말연습장</h2>
           <p className="text-sm text-blue-500 mb-4">부담 없이 연습해보세요</p>
           <button className="w-full bg-gradient-to-r from-green-400 to-blue-400 text-white py-2.5 rounded-lg font-medium hover:from-green-500 hover:to-blue-500 transition-all">
             무제한 연습 가능
@@ -193,7 +193,7 @@ const AICoachChat = () => {
             </div>
             <div>
               <h3 className="font-bold text-gray-800">사이사이 AI 코치</h3>
-              <p className="text-sm text-blue-500">어떤 주제이 활성화</p>
+              <p className="text-sm text-blue-500">연습 도우미 활성화</p>
             </div>
           </div>
 
@@ -293,7 +293,7 @@ const AICoachChat = () => {
               <div className="flex flex-wrap gap-2">
                 <button className="flex items-center gap-1 px-3 py-2 bg-white rounded-full text-sm text-gray-700 hover:bg-gray-100 transition-all border">
                   <span className="text-green-500">✓</span>
-                  지연스러운 대화 중이예요!
+                  자연스러운 대화 중이예요!
                 </button>
                 <button className="flex items-center gap-1 px-3 py-2 bg-white rounded-full text-sm text-gray-700 hover:bg-gray-100 transition-all border">
                   <span className="text-orange-500">👍</span>
