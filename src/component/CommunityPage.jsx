@@ -13,7 +13,7 @@ const CommunityPage = () => {
       author: '익명의 대화러',
       time: '12분 전',
       category: '대화후기',
-      title: '오늘 첫 맞고기! 도전했는데 생각보다 나쁘 좋았어요!',
+      title: '오늘 첫 말잇기 도전했는데 생각보다 나쁘지 않고 좋았어요!',
       content: '처음에는 정말 떨렸는데, 상대방이 너무 따뜻하게 대해줘서 너무 좋았어요. 10시간 이렇게 빨리 갈 줄 몰랐네요. 대화에도 도움 많이...',
       tags: ['#오늘', '#떨림', '#따뜻함'],
       likes: 24,
@@ -29,7 +29,7 @@ const CommunityPage = () => {
       title: '오늘 카페에서 만난 새로운 인연 😊',
       content: '평소 낯가림이 심해서 사이사이에서 연습한 대화법으로 말 걸었는데 친구로 이어질 수 있을지도! 너무나도 기분 좋은 오늘입니다. 정말로 배운 덕분이에요! 대화에서 배운 건...',
       tags: ['#카페', '#새친구', '#새로운만남'],
-      likes: 18,
+      likes: 18, 
       comments: 8,
       views: 203,
       categoryColor: 'bg-orange-100 text-orange-600'
@@ -40,7 +40,7 @@ const CommunityPage = () => {
       time: '1시간 전',
       category: '궁금해요',
       title: '대화할 때 침묵이 흐르면 어떻게 해야 할까요?',
-      content: '말끝가 이어지지 가끔 튀 없이 멈아서 당황스러울 때 많아요. 이럴 때, 어떤 상황에서든지 자연스럽게 흘러갈 수 있는 방법이 있을까요?',
+      content: '말잇기 하면서 가끔 할 말이 없어서 멈칫하게 될 때가 많아요. 이럴 때, 어떤 상황에서든지 자연스럽게 흘러갈 수 있는 방법이 있을까요?',
       tags: ['#대화팁', '#침묵', '#대처방법'],
       likes: 15,
       comments: 23,
@@ -88,11 +88,14 @@ const CommunityPage = () => {
     }
   ];
 
-  const filteredPosts = selectedCategory === '전체' 
-    ? posts 
-    : selectedCategory === '인기글'
-    ? posts.filter(post => post.likes > 20)
-    : posts.filter(post => post.category === selectedCategory);
+  const getFilteredPosts = (posts, selectedCategory) => {
+  if (selectedCategory === '전체') return posts;
+  if (selectedCategory === '인기글') return posts.filter(post => post.likes > 20);
+  return posts.filter(post => post.category === selectedCategory);
+};
+
+const filteredPosts = getFilteredPosts(posts, selectedCategory);
+
 
   const handlePostClick = (postId) => {
     console.log(`Navigate to post detail page: ${postId}`);
@@ -118,11 +121,11 @@ const CommunityPage = () => {
               <span className="text-xl font-bold text-gray-800">사이사이</span>
             </div>
             <nav className="hidden md:flex items-center gap-8">
-              <a href="#" className="text-gray-600 hover:text-gray-900">홈</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900">맞아기</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900">시작하</a>
-              <a href="#" className="text-green-500 font-medium">커뮤니티</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900">내 기록</a>
+              <a href="SaisaiHome.jsx" className="text-gray-600 hover:text-gray-900">홈</a>
+              {/* <a href="#" className="text-gray-600 hover:text-gray-900">말잇기</a> */}
+              <a href="ChattingPage.jsx" className="text-gray-600 hover:text-gray-900">시작하기</a>
+              <a href="CommunityPage.jsx" className="text-green-500 font-medium">커뮤니티</a>
+              {/* <a href="#" className="text-gray-600 hover:text-gray-900">내 기록</a> */}
             </nav>
             <button 
               onClick={handleWritePost}

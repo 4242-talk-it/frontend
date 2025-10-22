@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { X, List, RefreshCw, ChevronDown, Send } from 'lucide-react';
+//import { X, List, RefreshCw, ChevronDown, Send } from 'lucide-react'; --> ChevronDown 변수가 선언되었으나 사용X
+import { X, List, RefreshCw, Send } from 'lucide-react';
 
 const Chattingpage = () => {
   const [showChatEnd, setShowChatEnd] = useState(false);
   const [selectedEmotions, setSelectedEmotions] = useState([]);
   const [messages, setMessages] = useState([
-    { text: '인당하세요! 세로운 시작이네요 힘찬 실패했어요', sender: 'ai', time: '14:23' },
+    { text: '안녕하세요! 새로운 시작이라니 정말 설레겠어요.', sender: 'ai', time: '14:23' },
     { text: '네, 맞아요! 오늘부터 새 직장에 다니게 됐거든요', sender: 'user', time: '14:24' },
     { text: '와 축하드려요! 첫날은 어떠신가요? 많이 떨리셨을 것 같은데', sender: 'ai', time: '14:25' },
-    { text: '생각보다 동료분들이 따뜻하게 맞아주셔서 다행이었어요. 그래도 아직 적응이 조금 있긴 해요', sender: 'user', time: '14:26' }
+    { text: '생각보다 동료분들이 따뜻하게 맞아주셔서 다행이었어요. 그래도 아직 걱정이 조금 있긴 해요', sender: 'user', time: '14:26' }
   ]);
   const [turnCount, setTurnCount] = useState(2);
   //const [maxTurns, setMaxTurns] = useState(5);
@@ -16,9 +17,9 @@ const Chattingpage = () => {
   const [inputText, setInputText] = useState('');
 
   const emotions = [
-    { text: '바쁘셨어요', emoji: '😊' },
-    { text: '재미없었어요', emoji: '😐' },
-    { text: '행복했어요', emoji: '😊' },
+    { text: '따뜻했어요', emoji: '😊' },
+    { text: '재미있었어요', emoji: '😐' },
+    { text: '평범했어요', emoji: '😊' },
     { text: '아쉬웠어요', emoji: '😔' },
     { text: '불편했어요', emoji: '😣' }
   ];
@@ -81,7 +82,7 @@ const Chattingpage = () => {
                   의
                 </div>
                 <div>
-                  <div className="text-xs sm:text-sm font-bold text-gray-800">의명의 대화상대</div>
+                  <div className="text-xs sm:text-sm font-bold text-gray-800">익명의 대화상대</div>
                   <div className="text-xs text-green-500">온라인</div>
                 </div>
               </div>
@@ -99,7 +100,7 @@ const Chattingpage = () => {
             {/* Sidebar */}
             <div className="w-48 sm:w-64 border-r bg-gray-50 p-3 sm:p-4 overflow-y-auto hidden md:block">
               <div className="mb-6">
-                <h3 className="font-bold text-gray-800 mb-2 text-sm sm:text-base">의명 대화방</h3>
+                <h3 className="font-bold text-gray-800 mb-2 text-sm sm:text-base">익명 대화방</h3>
                 <p className="text-xs sm:text-sm text-gray-500">감정 베타 버전</p>
                 <div className="mt-3 bg-green-100 text-green-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium inline-block">
                   5/10회
@@ -114,27 +115,26 @@ const Chattingpage = () => {
                   </div>
                   <div className="bg-green-50 p-3 rounded-lg">
                     <p className="text-xs sm:text-sm font-medium text-green-700 mb-1">새로운 시작</p>
-                    <p className="text-xs text-gray-600">반복니 노선째 관찰한 이야기를 나눠보세요</p>
+                    <p className="text-xs text-gray-600">변화나 도전에 관한 이야기를 나눠보세요.</p>
                   </div>
                 </div>
 
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xl">💝</span>
-                    <h4 className="font-bold text-sm sm:text-base text-gray-800">카드도 달성</h4>
-                  </div>
+                    <h4 className="font-bold text-sm sm:text-base text-gray-800">키어드 달성</h4>
+                  </div> 
                   <div className="flex gap-2">
                     <button className="px-3 py-1.5 bg-green-500 text-white rounded-lg text-xs sm:text-sm font-medium">✓ 실천</button>
                     <button className="px-3 py-1.5 bg-green-500 text-white rounded-lg text-xs sm:text-sm font-medium">✓ 격려</button>
                   </div>
                   <p className="text-xs text-gray-500 mt-2">기타별</p>
                 </div>
-
                 <div>
                   <h4 className="font-bold text-sm sm:text-base text-gray-800 mb-2">현재 감정</h4>
                   <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-xs sm:text-sm font-medium text-blue-700 mb-1">야근 생각에 😣</p>
-                    <p className="text-xs text-gray-600">바쁘온 감정의 상식적 백분짐</p>
+                    <p className="text-xs sm:text-sm font-medium text-blue-700 mb-1">약간 설레는 ☺️</p>
+                    <p className="text-xs text-gray-600">비슷한 감정의 상대와 매칭됨</p>
                   </div>
                 </div>
               </div>
@@ -177,14 +177,14 @@ const Chattingpage = () => {
                     {idx === 1 && (
                       <div className="text-center my-3">
                         <div className="inline-block bg-blue-50 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm text-blue-600">
-                          💡 '실패' 카드드를 성공적으로 사용하셨어요!
+                          💡 '설렘' 키워드 성공적으로 사용하셨어요!
                         </div>
                       </div>
                     )}
                     {idx === 3 && (
                       <div className="text-center my-3">
                         <div className="inline-block bg-blue-50 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm text-blue-600">
-                          💡 '격려' 카드드도 명쾌 솔직한 감정 표현이 좋아요! 😊
+                          💡 '걱정' 키워드도 달성! 솔직한 감정 표현이 좋아요! 😊
                         </div>
                       </div>
                     )}
@@ -194,11 +194,11 @@ const Chattingpage = () => {
                 <div className="bg-gray-50 rounded-xl p-3 sm:p-4">
                   <div className="flex items-start gap-2 mb-2">
                     <span className="text-red-500">📌</span>
-                    <p className="text-xs sm:text-sm font-medium text-gray-700">15시간 업압</p>
-                    <button className="ml-auto text-xs sm:text-sm text-blue-500 font-medium">카드드: 거려</button>
+                    <p className="text-xs sm:text-sm font-medium text-gray-700">15자 이상 입력</p>
+                    <button className="ml-auto text-xs sm:text-sm text-blue-500 font-medium">키워드 : 설렘</button>
                   </div>
                   <div className="bg-white rounded-lg p-3">
-                    <p className="text-xs sm:text-sm text-gray-600">진솔한 마음을 담아 대화해보세요... (15시간 이상)</p>
+                    <p className="text-xs sm:text-sm text-gray-600">진솔한 마음을 담아 대화해보세요... (15자 이상)</p>
                   </div>
                 </div>
               </div>
@@ -263,10 +263,10 @@ const Chattingpage = () => {
                 계속 대화하기
               </button>
               <button
-                onClick={() => alert('대화가 백업되었습니다!')}
+                onClick={() => alert('대화가 종료되었습니다!')}
                 className="flex-1 px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-medium text-white bg-blue-500 hover:bg-blue-600 transition-colors"
               >
-                대화 백업하기
+                대화 종료하기
               </button>
             </div>
           </div>
