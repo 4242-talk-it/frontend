@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, List, RefreshCw, ChevronDown, Send } from 'lucide-react';
+//import { X, List, RefreshCw, ChevronDown, Send } from 'lucide-react'; --> ChevronDown 변수가 선언되었으나 사용X
+import { X, List, RefreshCw, Send } from 'lucide-react';
 
 const Chattingpage = () => {
   const [showChatEnd, setShowChatEnd] = useState(false);

@@ -88,11 +88,14 @@ const CommunityPage = () => {
     }
   ];
 
-  const filteredPosts = selectedCategory === '전체' 
-    ? posts 
-    : selectedCategory === '인기글'
-    ? posts.filter(post => post.likes > 20)
-    : posts.filter(post => post.category === selectedCategory);
+  const getFilteredPosts = (posts, selectedCategory) => {
+  if (selectedCategory === '전체') return posts;
+  if (selectedCategory === '인기글') return posts.filter(post => post.likes > 20);
+  return posts.filter(post => post.category === selectedCategory);
+};
+
+const filteredPosts = getFilteredPosts(posts, selectedCategory);
+
 
   const handlePostClick = (postId) => {
     console.log(`Navigate to post detail page: ${postId}`);
@@ -118,11 +121,11 @@ const CommunityPage = () => {
               <span className="text-xl font-bold text-gray-800">사이사이</span>
             </div>
             <nav className="hidden md:flex items-center gap-8">
-              <a href="#" className="text-gray-600 hover:text-gray-900">홈</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900">맞아기</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900">시작하</a>
-              <a href="#" className="text-green-500 font-medium">커뮤니티</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900">내 기록</a>
+              <a href="SaisaiHome.jsx" className="text-gray-600 hover:text-gray-900">홈</a>
+              {/* <a href="#" className="text-gray-600 hover:text-gray-900">말잇기</a> */}
+              <a href="ChattingPage.jsx" className="text-gray-600 hover:text-gray-900">시작하기</a>
+              <a href="CommunityPage.jsx" className="text-green-500 font-medium">커뮤니티</a>
+              {/* <a href="#" className="text-gray-600 hover:text-gray-900">내 기록</a> */}
             </nav>
             <button 
               onClick={handleWritePost}
