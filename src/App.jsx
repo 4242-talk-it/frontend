@@ -4,7 +4,8 @@ import SaisaiHome from './component/SaisaiHome';
 import Login from './component/Login';
 import Signup from './component/Signup';
 import Chattingpage from './component/chattingPage';
-import MyPage from './component/MyPage';
+import CommunityPage from './component/CommunityPage';
+import AIChattingPage from './component/AIChattingPage';
 
 
 const App = () => {
