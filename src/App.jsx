@@ -10,10 +10,10 @@ import AIChattingPage from './component/AIChattingPage';
 
 const App = () => {
   return (
-    <div>
+    <main>
       {/* <LandingPage /> */}
-      <AIChattingPage/>
-    </div>
+      <Chattingpage/>
+    </main>
   );
 };
 
