@@ -3,13 +3,14 @@ import LandingPage from './component/LandingPage';
 import SaisaiHome from './component/SaisaiHome';
 import Login from './component/Login';
 import Signup from './component/Signup';
-import MyPage from './component/MyPage';
+import Chattingpage from './component/chattingPage';
+
 
 const App = () => {
   return (
     <div>
       {/* <LandingPage /> */}
-      <MyPage/>
+      <Chattingpage/>
     </div>
   );
 };
