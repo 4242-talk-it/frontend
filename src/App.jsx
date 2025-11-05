@@ -1,4 +1,5 @@
 import React from "react";
+import { Routes, Route } from "react-router-dom";
 import LandingPage from "./component/LandingPage";
 import SaisaiHome from "./component/SaisaiHome";
 import Login from "./component/Login";
@@ -17,6 +18,9 @@ const App = () => {
     <main>
       {/* <LandingPage /> */}
       <Header />
+      <Routes>
+        <Route path="/" element={<SaisaiHome />} />
+        </Routes>
     </main>
   );
 };
