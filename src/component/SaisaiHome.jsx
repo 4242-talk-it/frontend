@@ -58,37 +58,6 @@ const SaisaiHome = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 헤더 */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-8">
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
-                <span>사이사이</span>
-                <Sparkles className="w-6 h-6 text-yellow-500" />
-              </h1>
-              <nav className="hidden md:flex space-x-8">
-                <a href="#" className="text-gray-900 font-medium border-b-2 border-green-400 pb-1">홈</a>
-                <a href="#" className="text-gray-600 hover:text-gray-900">피드백</a>
-                <a href="#" className="text-gray-600 hover:text-gray-900">대시보드</a>
-                <a href="#" className="text-gray-600 hover:text-gray-900">관리</a>
-              </nav>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <span>연속 7일째</span>
-              </div>
-              <div className="relative">
-                <Bell className="w-6 h-6 text-gray-600" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">2</span>
-              </div>
-              <User className="w-6 h-6 text-gray-600" />
-              <button className="bg-gray-900 text-white px-4 py-2 rounded text-sm hover:bg-gray-800 transition-colors">로그아웃</button>
-            </div>
-          </div>
-        </div>
-      </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 메인 히어로 섹션 - 그라데이션 변경 */}
