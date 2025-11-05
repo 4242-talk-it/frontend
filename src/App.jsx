@@ -19,7 +19,7 @@ const App = () => {
       {/* <LandingPage /> */}
       <Header />
       <Routes>
-        <Route path="/" element={<SaisaiHome />} />
+        <Route path="/" element={<CommunityDetail />} />
         </Routes>
     </main>
   );

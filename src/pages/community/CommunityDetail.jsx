@@ -1,6 +1,95 @@
 import { useState } from 'react';
-import { Header, BackButton, UserAvatar, CategoryBadge, Tag, ActionButton, ShareButton, Comment } from '../../component/common/Community';
-import { colors, commonStyles, borderRadius } from '../../styles/Community';
+import { ArrowLeft, Heart, MessageCircle, Bookmark, Link, Share2 } from 'lucide-react';
+
+// 컴포넌트들
+const BackButton = () => (
+  <button className="flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 border-2 border-gray-200 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm mb-6">
+    <ArrowLeft size={20} />
+  </button>
+);
+
+const UserAvatar = ({ name, size = 56 }) => (
+  <div 
+    className="flex items-center justify-center bg-green-100 text-green-700 font-semibold rounded-full"
+    style={{ width: size, height: size, fontSize: size * 0.4 }}
+  >
+    {name}
+  </div>
+);
+
+const CategoryBadge = ({ category, icon }) => (
+  <div className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+    <span>{icon}</span>
+    <span>{category}</span>
+  </div>
+);
+
+const Tag = ({ children }) => (
+  <span className="inline-block px-4 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors cursor-pointer">
+    {children}
+  </span>
+);
+
+const ActionButton = ({ icon, count, active, onClick, disabled }) => (
+  <button
+    onClick={disabled ? undefined : onClick}
+    disabled={disabled}
+    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all
+      ${disabled
+        ? 'bg-gray-50 text-gray-600 cursor-default select-none pointer-events-none focus:outline-none focus-visible:outline-none hover:!bg-gray-50'
+        : active
+          ? 'bg-green-50 text-green-600'
+          : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+      }`}
+  >
+    <span className="text-lg">{icon}</span>
+    <span className="text-sm">{count}</span>
+  </button>
+);
+
+const ShareButton = ({ icon, title, onClick }) => (
+  <button
+    onClick={onClick}
+    title={title}
+    className="p-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+  >
+    <span className="text-lg">{icon}</span>
+  </button>
+);
+
+const Comment = ({ comment }) => {
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(comment.likes);
+
+  const handleLike = () => {
+    setLiked(!liked);
+    setLikes(liked ? likes - 1 : likes + 1);
+  };
+
+  return (
+    <div className="flex gap-3">
+      <UserAvatar name={comment.avatar} size={40} />
+      <div className="flex-1">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="font-semibold text-gray-800">{comment.author}</span>
+          <span className="text-sm text-gray-500">{comment.time}</span>
+        </div>
+        <p className="text-gray-700 leading-relaxed mb-3 whitespace-pre-wrap">
+          {comment.text}
+        </p>
+        <button
+          onClick={handleLike}
+          className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
+            liked ? 'text-red-500' : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <span>{liked ? '❤️' : '🤍'}</span>
+          <span>{likes}</span>
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export default function CommunityDetail() {
   const [isLiked, setIsLiked] = useState(false);
@@ -55,18 +144,15 @@ export default function CommunityDetail() {
     return true;
   };
 
-  // 좋아요 토글
   const handleToggleLike = () => {
     setIsLiked(!isLiked);
     setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
   };
 
-  // 북마크 토글
   const handleToggleBookmark = () => {
     setIsBookmarked(!isBookmarked);
   };
 
-  // 댓글 작성
   const handleSubmitComment = () => {
     if (!validateCommentForm(commentText)) return;
 
@@ -85,28 +171,20 @@ export default function CommunityDetail() {
   };
 
   return (
-    <div style={commonStyles.page}>
-      <Header />
-
-      <div style={{ ...commonStyles.container, maxWidth: '900px' }}>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 py-12 px-4">
+      <div className="max-w-[900px] mx-auto">
         <BackButton />
 
         {/* 게시글 카드 */}
-        <article style={{ ...commonStyles.card, marginBottom: '24px' }}>
+        <article className="bg-white rounded-2xl shadow-lg p-8 mb-6">
           {/* 상단 정보 */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '24px',
-            paddingBottom: '16px',
-            borderBottom: `1px solid ${colors.border.lighter}`,
-          }}>
+          <div className="flex items-center mb-6 pb-4 border-b border-gray-100">
             <UserAvatar name="김" size={56} />
-            <div style={{ flex: 1, marginLeft: '16px' }}>
-              <div style={{ fontWeight: 600, color: colors.text.primary, fontSize: '16px', marginBottom: '4px' }}>
+            <div className="flex-1 ml-4">
+              <div className="font-semibold text-gray-900 text-base mb-1">
                 김○○
               </div>
-              <div style={{ color: colors.text.tertiary, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div className="text-gray-500 text-sm flex items-center gap-3">
                 <span>2시간 전</span>
                 <span>•</span>
                 <span>조회 247</span>
@@ -116,24 +194,12 @@ export default function CommunityDetail() {
           </div>
 
           {/* 제목 */}
-          <h1 style={{
-            fontSize: '28px',
-            fontWeight: 'bold',
-            color: colors.text.primary,
-            marginBottom: '24px',
-            lineHeight: 1.4,
-          }}>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-6 leading-snug">
             처음으로 마음을 터놓고 이야기할 수 있었어요
           </h1>
 
           {/* 본문 */}
-          <div style={{
-            color: '#555',
-            fontSize: '16px',
-            lineHeight: 1.8,
-            marginBottom: '32px',
-            whiteSpace: 'pre-wrap',
-          }}>
+          <div className="text-gray-700 text-base leading-relaxed mb-8 whitespace-pre-wrap">
             평소에 사람들과 깊은 대화를 나누기 어려워했는데, 오늘 사이사이에서 만난 분과 정말 진솔한 대화를 나눌 수 있었습니다.
 서로의 고민을 들어주고 공감해주는 시간이 너무 소중했어요. 특히 "괜찮다, 천천히 가도 돼"라는 말이 정말 위로가 되었습니다.
 요즘 취업 준비로 스트레스가 많았는데, 비슷한 상황에 있는 분과 이야기하니까 혼자가 아니라는 걸 느꼈어요. 서로 응원해주고 힘내자고 말해줄 수 있는 공간이 있다는 게 정말 감사합니다.
@@ -141,91 +207,58 @@ export default function CommunityDetail() {
           </div>
 
           {/* 태그 */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '32px' }}>
+          <div className="flex flex-wrap gap-2 mb-8">
             {['#진솔한대화', '#위로', '#공감', '#응원'].map(tag => (
               <Tag key={tag}>{tag}</Tag>
             ))}
           </div>
 
           {/* 액션 영역 */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '20px 0',
-            borderTop: `1px solid ${colors.border.lighter}`,
-            borderBottom: `1px solid ${colors.border.lighter}`,
-          }}>
-            <div style={{ display: 'flex', gap: '24px' }}>
+          <div className="flex items-center justify-between py-5 border-t border-b border-gray-100">
+            <div className="flex gap-6">
               <ActionButton
-                icon={isLiked ? '❤️' : '👍'}
+                icon={isLiked ? '❤️' : '🤍'}
                 count={likeCount}
                 active={isLiked}
                 onClick={handleToggleLike}
               />
-              <ActionButton icon="💬" count={comments.length} />
               <ActionButton
                 icon={isBookmarked ? '⭐' : '🔖'}
                 count="저장"
                 onClick={handleToggleBookmark}
               />
+              <ActionButton icon="💬" count={comments.length} disabled/>
             </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div className="flex gap-3">
               <ShareButton icon="📋" title="링크 복사" onClick={copyLink} />
               <ShareButton icon="💛" title="카카오톡 공유" onClick={() => alert('카카오톡 공유 기능 (개발 중)')} />
-              <ShareButton icon="📘" title="페이스북 공유" onClick={() => alert('페이스북 공유 기능 (개발 중)')} />
             </div>
           </div>
         </article>
 
         {/* 댓글 섹션 */}
-        <section style={commonStyles.card}>
+        <section className="bg-white rounded-2xl shadow-lg p-8">
           {/* 댓글 헤더 */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '24px',
-            paddingBottom: '16px',
-            borderBottom: `1px solid ${colors.border.lighter}`,
-          }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, color: colors.text.primary }}>댓글</h2>
-            <span style={{ color: colors.primary, fontWeight: 600 }}>{comments.length}개</span>
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+            <h2 className="text-xl font-semibold text-gray-900">댓글</h2>
           </div>
 
           {/* 댓글 작성 */}
-          <div style={{ marginBottom: '32px' }}>
+          <div className="mb-8">
             <textarea
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               placeholder="따뜻한 댓글로 응원해주세요 ✨"
               maxLength={500}
-              style={{
-                ...commonStyles.input,
-                minHeight: '100px',
-                resize: 'vertical',
-              }}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl 
+                      focus:border-green-400 focus:outline-none transition-colors
+                      min-h-[100px] resize-y"
             />
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: '12px',
-            }}>
-              <div style={{ color: colors.text.tertiary, fontSize: '13px' }}>
-                최대 500자까지 입력 가능
-              </div>
+            <div className="flex justify-end items-center mt-3">
               <button
                 onClick={handleSubmitComment}
-                style={{
-                  background: colors.primary,
-                  color: colors.white,
-                  border: 'none',
-                  padding: '12px 24px',
-                  borderRadius: borderRadius.medium,
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                }}
+                className="bg-green-400 text-white px-6 py-3 rounded-xl font-medium
+                        hover:bg-green-500 transition-colors"
               >
                 댓글 작성
               </button>
@@ -233,7 +266,7 @@ export default function CommunityDetail() {
           </div>
 
           {/* 댓글 목록 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div className="flex flex-col gap-5">
             {comments.map(comment => (
               <Comment key={comment.id} comment={comment} />
             ))}
