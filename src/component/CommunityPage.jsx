@@ -102,40 +102,14 @@ const filteredPosts = getFilteredPosts(posts, selectedCategory);
     // 실제 구현시 라우팅 로직 추가
   };
 
-  const handleWritePost = () => {
-    console.log('Navigate to write post page');
-    // 실제 구현시 라우팅 로직 추가
-  };
+  // const handleWritePost = () => {
+  //   console.log('Navigate to write post page');
+  //   // 실제 구현시 라우팅 로직 추가
+  // };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2">
-              <div className="flex gap-1">
-                <div className="w-6 h-6 bg-green-400 rounded-full"></div>
-                <div className="w-6 h-6 bg-blue-400 rounded-full"></div>
-              </div>
-              <span className="text-xl font-bold text-gray-800">사이사이</span>
-            </div>
-            <nav className="hidden md:flex items-center gap-8">
-              <a href="SaisaiHome.jsx" className="text-gray-600 hover:text-gray-900">홈</a>
-              {/* <a href="#" className="text-gray-600 hover:text-gray-900">말잇기</a> */}
-              <a href="ChattingPage.jsx" className="text-gray-600 hover:text-gray-900">시작하기</a>
-              <a href="CommunityPage.jsx" className="text-green-500 font-medium">커뮤니티</a>
-              {/* <a href="#" className="text-gray-600 hover:text-gray-900">내 기록</a> */}
-            </nav>
-            <button 
-              onClick={handleWritePost}
-              className="bg-gradient-to-r from-green-400 to-blue-400 hover:from-green-500 hover:to-blue-500 text-white px-4 sm:px-6 py-2 rounded-full font-medium transition-all shadow-md hover:shadow-lg flex items-center gap-2"
-            >
-              ✏️ 글쓰기
-            </button>
-          </div>
-        </div>
-      </header>
+      
 
       {/* Hero Section */}
       <div className="bg-gradient-to-b from-purple-50 to-white py-12 sm:py-16">
