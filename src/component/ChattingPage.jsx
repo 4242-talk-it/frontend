@@ -122,7 +122,7 @@ const Chattingpage = () => {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xl">💝</span>
-                    <h4 className="font-bold text-sm sm:text-base text-gray-800">키어드 달성</h4>
+                    <h4 className="font-bold text-sm sm:text-base text-gray-800">키워드 달성</h4>
                   </div> 
                   <div className="flex gap-2">
                     <button className="px-3 py-1.5 bg-green-500 text-white rounded-lg text-xs sm:text-sm font-medium">✓ 실천</button>

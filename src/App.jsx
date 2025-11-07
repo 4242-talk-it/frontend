@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 import LandingPage from "./component/LandingPage";
 import SaisaiHome from "./component/SaisaiHome";
 import Login from "./component/Login";
@@ -18,6 +18,7 @@ const App = () => {
       <Header />
       <Routes>
           <Route path="/" element={<SaisaiHome />} />
+          <Route path="/MyPage" element={<MyPage/>} />
           <Route path="/chat" element={<Chattingpage />} />
           <Route path="/aichat" element={<AIChattingPage />} />
           <Route path="/community" element={<CommunityPage />} />
