@@ -5,7 +5,7 @@ function CreateButton({ onClick, isTopButtonVisible, icon }) {
     <button
       onClick={onClick}
       className={`
-        absolute bg-red text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-50
+        absolute bg-primary text-black w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-50
         transition-all duration-300 ease-in-out transform
         ${isTopButtonVisible ? 'bottom-[135px] md:bottom-[110px]' : 'bottom-20 md:bottom-14'} right-4
       `}

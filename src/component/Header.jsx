@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Header = () => {
   const [isCompact, setIsCompact] = useState(false);
-  const [currentPath, setCurrentPath] = useState("/community");
+  const navigate = useNavigate(); 
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,7 +24,7 @@ const Header = () => {
   const userName = "김철수";
   const firstLetter = userName.charAt(0);
   const isActive = (p) => currentPath === p;
-  const handleNavClick = (p) => setCurrentPath(p);
+  const handleNavClick = (p) => navigate(p);
   const handleLogout = () => alert("로그아웃 되었습니다.");
 
   return (

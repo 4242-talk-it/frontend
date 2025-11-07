@@ -24,7 +24,7 @@ function TopButton({ offset = 100 }) {
     <button
       onClick={scrollToTop}
       className={`
-        absolute bg-green text-black w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-50
+        absolute bg-secondary text-black w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-50
         transition-all duration-300 ease-in-out transform bottom-20 md:bottom-14 right-4
         ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
       `}

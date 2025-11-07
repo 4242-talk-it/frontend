@@ -7,20 +7,23 @@ import Signup from "./component/Signup";
 import Chattingpage from "./component/chattingPage";
 import CommunityCreate from "./pages/community/CommunityCreate";
 import CommunityDetail from "./pages/community/CommunityDetail";
-import CommunityPage from "./component/CommunityPage";
+import CommunityPage from "./pages/community/CommunityPage";
 import AIChattingPage from "./component/AIChattingPage";
 import MyPage from "./component/MyPage";
-//import { Header } from "./component/common/Community";
 import Header from "./component/Header";
 
 const App = () => {
   return (
     <main>
-      {/* <LandingPage /> */}
       <Header />
       <Routes>
-        <Route path="/" element={<CommunityDetail />} />
-        </Routes>
+          <Route path="/" element={<SaisaiHome />} />
+          <Route path="/chat" element={<Chattingpage />} />
+          <Route path="/aichat" element={<AIChattingPage />} />
+          <Route path="/community" element={<CommunityPage />} />
+          <Route path="/community/create" element={<CommunityCreate />} />
+          <Route path="/community/detail" element={<CommunityDetail />} />
+      </Routes>
     </main>
   );
 };
