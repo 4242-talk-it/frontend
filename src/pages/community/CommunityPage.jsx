@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, User, Grid, List } from 'lucide-react';
 import TopButton from '../../component/button/TopButton';
 import CreateButton from '../../component/button/CreateButton';
@@ -10,6 +10,7 @@ const CommunityPage = () => {
 
   const [isTopButtonVisible, setIsTopButtonVisible] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,11 +32,18 @@ const CommunityPage = () => {
       </div>
     </aside>
   );
+
+  useEffect(() => {
+    if (location.state?.newPost) {
+      setPosts((prev) => [location.state.newPost, ...prev]);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
   
   const categories = ['전체', '대화후기', '일상공유', '궁금해요', '대화꿀팁', '인기글'];
 
-  const posts = [
-    {
+  const [posts, setPosts] = useState([
+   {
       id: 1,
       author: '익명의 대화러',
       time: '12분 전',
@@ -191,7 +199,7 @@ const CommunityPage = () => {
       views: 421,
       categoryColor: 'bg-purple-100 text-purple-600'
     }
-  ];
+  ]);
 
   const getFilteredPosts = (posts, selectedCategory) => {
   if (selectedCategory === '전체') return posts;

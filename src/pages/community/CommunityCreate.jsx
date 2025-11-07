@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const PageHeader = ({ title, subtitle }) => (
   <div className="text-center mb-10">
@@ -33,6 +34,8 @@ export default function StoryForm() {
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const navigate = useNavigate();
 
   const maxTitle = 50;
   const maxContent = 1000;
@@ -82,9 +85,21 @@ export default function StoryForm() {
 
     setIsSubmitting(true);
     try {
-      // 여기에 실제 제출 로직 추가
+      // 여기에 실제 제출 로직 추가(서버 전송)
       await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const newPost = {
+        id: Date.now(),
+        category,
+        title,
+        content,
+        tags,
+        author: '홍길동',
+        createdAt: new Date().toISOString(),
+      };
       alert('게시글이 등록되었습니다!');
+      navigate('/community', { state: { newPost } });
+
       setCategory('');
       setTitle('');
       setContent('');
