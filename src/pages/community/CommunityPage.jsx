@@ -1,14 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, User, Grid, List } from 'lucide-react';
+import TopButton from '../../component/button/TopButton';
+import CreateButton from '../../component/button/CreateButton';
 
 const CommunityPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('전체');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [viewMode, setViewMode] = useState('grid');
 
+  const [isTopButtonVisible, setIsTopButtonVisible] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsTopButtonVisible(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  
+  const renderButton = () => (
+    <aside> 
+      <div className="fixed bottom-6 right-[calc(50%-600px)] flex flex-col gap-3 z-50">
+        <CreateButton
+          onClick={() => navigate(`/community/create`)} // 고정 경로로 변경
+          isTopButtonVisible={isTopButtonVisible}
+        />
+        {isTopButtonVisible && <TopButton />}
+      </div>
+    </aside>
+  );
+
+  useEffect(() => {
+    if (location.state?.newPost) {
+      setPosts((prev) => [location.state.newPost, ...prev]);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+  
   const categories = ['전체', '대화후기', '일상공유', '궁금해요', '대화꿀팁', '인기글'];
 
-  const posts = [
-    {
+  const [posts, setPosts] = useState([
+   {
       id: 1,
       author: '익명의 대화러',
       time: '12분 전',
@@ -85,8 +120,86 @@ const CommunityPage = () => {
       comments: 34,
       views: 421,
       categoryColor: 'bg-purple-100 text-purple-600'
+    },
+    {
+      id: 7,
+      author: '익명의 대화러',
+      time: '12분 전',
+      category: '대화후기',
+      title: '오늘 첫 말잇기 도전했는데 생각보다 나쁘지 않고 좋았어요!',
+      content: '처음에는 정말 떨렸는데, 상대방이 너무 따뜻하게 대해줘서 너무 좋았어요. 10시간 이렇게 빨리 갈 줄 몰랐네요. 대화에도 도움 많이...',
+      tags: ['#오늘', '#떨림', '#따뜻함'],
+      likes: 24,
+      comments: 12,
+      views: 156,
+      categoryColor: 'bg-blue-100 text-blue-600'
+    },
+    {
+      id: 8,
+      author: '햇살처럼',
+      time: '25분 전',
+      category: '일상공유',
+      title: '오늘 카페에서 만난 새로운 인연 😊',
+      content: '평소 낯가림이 심해서 사이사이에서 연습한 대화법으로 말 걸었는데 친구로 이어질 수 있을지도! 너무나도 기분 좋은 오늘입니다. 정말로 배운 덕분이에요! 대화에서 배운 건...',
+      tags: ['#카페', '#새친구', '#새로운만남'],
+      likes: 18, 
+      comments: 8,
+      views: 203,
+      categoryColor: 'bg-orange-100 text-orange-600'
+    },
+    {
+      id: 9,
+      author: '궁금이',
+      time: '1시간 전',
+      category: '궁금해요',
+      title: '대화할 때 침묵이 흐르면 어떻게 해야 할까요?',
+      content: '말잇기 하면서 가끔 할 말이 없어서 멈칫하게 될 때가 많아요. 이럴 때, 어떤 상황에서든지 자연스럽게 흘러갈 수 있는 방법이 있을까요?',
+      tags: ['#대화팁', '#침묵', '#대처방법'],
+      likes: 15,
+      comments: 23,
+      views: 342,
+      categoryColor: 'bg-purple-100 text-purple-600'
+    },
+    {
+      id: 10,
+      author: '대화마스터',
+      time: '2시간 전',
+      category: '대화꿀팁',
+      title: '경청의 기술: 상대방의 말을 제대로 듣는 방법',
+      content: '많은 사람들이 대화할 때 자기 말만 하려고 하는데, 진정한 대화는 경청에서 시작됩니다. 오늘은 제가 실천하고 있는 경청 팁을 공유해볼게요...',
+      tags: ['#경청', '#대화기술', '#소통'],
+      likes: 42,
+      comments: 15,
+      views: 567,
+      categoryColor: 'bg-yellow-100 text-yellow-700'
+    },
+    {
+      id: 11,
+      author: '소심이',
+      time: '3시간 전',
+      category: '일상공유',
+      title: '첫 대면 약속 잡았어요! 너무 떨려요 ㅠㅠ',
+      content: '사이사이에서 한 달 동안 대화하던 분과 드디어 만나기로 했는데... 설레기도 하고 떨리기도 하네요. 어떤 옷을 입고 가야 할지, 어떤 이야기를...',
+      tags: ['#첫만남', '#떨림', '#설렘'],
+      likes: 31,
+      comments: 19,
+      views: 289,
+      categoryColor: 'bg-orange-100 text-orange-600'
+    },
+    {
+      id: 12,
+      author: '질문왕',
+      time: '5시간 전',
+      category: '궁금해요',
+      title: '대화 주제가 항상 고갈되는데 어떻게 하나요?',
+      content: '대화를 시작하면 처음 10분은 좋은데 그 이후로는 할 말이 없어져요. 여러분은 어떻게 대화 주제를 계속 이어가시나요?',
+      tags: ['#대화주제', '#고민', '#조언구함'],
+      likes: 27,
+      comments: 34,
+      views: 421,
+      categoryColor: 'bg-purple-100 text-purple-600'
     }
-  ];
+  ]);
 
   const getFilteredPosts = (posts, selectedCategory) => {
   if (selectedCategory === '전체') return posts;
@@ -102,14 +215,8 @@ const filteredPosts = getFilteredPosts(posts, selectedCategory);
     // 실제 구현시 라우팅 로직 추가
   };
 
-  // const handleWritePost = () => {
-  //   console.log('Navigate to write post page');
-  //   // 실제 구현시 라우팅 로직 추가
-  // };
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      
+    <div className="min-h-screen bg-gray-50 relative">
 
       {/* Hero Section */}
       <div className="bg-gradient-to-b from-purple-50 to-white py-12 sm:py-16">
@@ -330,6 +437,7 @@ const filteredPosts = getFilteredPosts(posts, selectedCategory);
           </div>
         )}
       </div>
+      {renderButton()}
     </div>
   );
 };

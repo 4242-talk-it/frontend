@@ -1,8 +1,33 @@
-import { useState } from 'react';
-import { Header, PageHeader, Tag, CharacterCount } from '../../component/common/Community';
-import { colors, commonStyles, borderRadius, categories } from '../../styles/Community';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export default function CommunityCreate() {
+const PageHeader = ({ title, subtitle }) => (
+  <div className="text-center mb-10">
+    <h1 className="text-3xl font-bold text-gray-800 mb-3">{title}</h1>
+    <p className="text-gray-600 leading-relaxed">{subtitle}</p>
+  </div>
+);
+
+const CharacterCount = ({ current, max }) => (
+  <div className="text-right text-sm text-gray-500 mt-2">
+    {current} / {max}
+  </div>
+);
+
+const Tag = ({ children, onRemove }) => (
+  <div className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-sm font-medium">
+    <span>{children}</span>
+    <button
+      onClick={onRemove}
+      className="hover:text-green-900 transition-colors ml-1"
+      aria-label="태그 삭제"
+    >
+      ×
+    </button>
+  </div>
+);
+
+export default function StoryForm() {
   const [category, setCategory] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -10,81 +35,86 @@ export default function CommunityCreate() {
   const [tagInput, setTagInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const maxTags = 5;
-  const maxTitle = 100;
+  const navigate = useNavigate();
+
+  const maxTitle = 50;
   const maxContent = 1000;
+  const maxTags = 5;
 
-  // ------------------- helpers.js 없이 직접 정의 -------------------
-  const validateReviewForm = (category, title, content) => {
-    if (!category) {
-      alert('카테고리를 선택해주세요.');
-      return false;
-    }
-    if (!title.trim()) {
-      alert('제목을 입력해주세요.');
-      return false;
-    }
-    if (!content.trim()) {
-      alert('내용을 입력해주세요.');
-      return false;
-    }
-    return true;
-  };
-
-  const showConfirm = (message) => window.confirm(message);
-  // ------------------------------------------------------
-
-  // 태그 추가/삭제 로직
-  const handleAddTag = () => {
-    const value = tagInput.trim();
-    if (value && tags.length < maxTags && !tags.includes(value)) {
-      setTags([...tags, value]);
-      setTagInput('');
-    }
-  };
+  const categories = [
+    { id: 1, value: '대화 후기', icon: '💬' },
+    { id: 2, value: '일상 이야기', icon: '☀️' },
+    { id: 3, value: '감사 인사', icon: '🙏' },
+    { id: 4, value: '추천 공유', icon: '⭐' },
+  ];
 
   const handleRemoveTag = (tagToRemove) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
+  const handleAddTag = () => {
+    const trimmedTag = tagInput.trim();
+    if (trimmedTag && tags.length < maxTags && !tags.includes(trimmedTag)) {
+      setTags([...tags, trimmedTag]);
+      setTagInput('');
+    }
+  };
+
   const handleTagKeyPress = (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
+    if (e.key === 'Enter') {
       e.preventDefault();
       handleAddTag();
     }
   };
 
-  const handleSubmit = async () => {
-    if (!validateReviewForm(category, title, content)) return;
-
-    setIsSubmitting(true);
-    const postData = {
-      category,
-      title: title.trim(),
-      content: content.trim(),
-      tags,
-      timestamp: new Date().toISOString(),
-    };
-
-    console.log('게시글 데이터:', postData);
-
-    // TODO: API 연동
-    setTimeout(() => {
-      alert('후기가 성공적으로 등록되었습니다!');
-      setIsSubmitting(false);
-    }, 1500);
+  const handleCancel = () => {
+    if (window.confirm('작성 중인 내용이 있습니다. 정말 취소하시겠습니까?')) {
+      setCategory('');
+      setTitle('');
+      setContent('');
+      setTags([]);
+      setTagInput('');
+    }
   };
 
-  const handleCancel = () => {
-    if (showConfirm('작성 중인 내용이 사라집니다. 정말 나가시겠습니까?')) {
-      window.history.back();
+  const handleSubmit = async () => {
+    if (!category || !title.trim() || !content.trim()) {
+      alert('카테고리, 제목, 내용을 모두 입력해주세요.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // 여기에 실제 제출 로직 추가(서버 전송)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const newPost = {
+        id: Date.now(),
+        category,
+        title,
+        content,
+        tags,
+        author: '홍길동',
+        createdAt: new Date().toISOString(),
+      };
+      alert('게시글이 등록되었습니다!');
+      navigate('/community', { state: { newPost } });
+
+      setCategory('');
+      setTitle('');
+      setContent('');
+      setTags([]);
+      setTagInput('');
+    } catch (error) {
+      alert('등록 중 오류가 발생했습니다.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div style={commonStyles.page}>
-      <Header />
-      <div style={commonStyles.container}>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 py-12 px-4">
+      <div className="max-w-3xl mx-auto">
         <PageHeader
           title="📝 함께 나누는 이야기"
           subtitle={
@@ -95,31 +125,23 @@ export default function CommunityCreate() {
           }
         />
 
-        <div style={commonStyles.card}>
+        <div className="bg-white rounded-2xl shadow-lg p-8">
           {/* 카테고리 선택 */}
-          <div style={{ marginBottom: '32px' }}>
-            <label style={{ display: 'block', fontWeight: 600, marginBottom: '12px' }}>카테고리</label>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-              gap: '12px'
-            }}>
+          <div className="mb-8">
+            <label className="block font-semibold mb-3">카테고리</label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {categories.map(cat => (
                 <div
                   key={cat.id}
                   onClick={() => setCategory(cat.value)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '16px',
-                    border: category === cat.value ? `2px solid ${colors.primary}` : `2px solid ${colors.border.light}`,
-                    borderRadius: borderRadius.medium,
-                    background: category === cat.value ? 'rgba(165, 242, 120, 0.1)' : colors.white,
-                    cursor: 'pointer',
-                    transition: 'all 0.3s',
-                    fontWeight: 500,
-                  }}
+                  className={`
+                    flex items-center justify-center p-4 rounded-xl cursor-pointer
+                    transition-all duration-300 font-medium
+                    ${category === cat.value
+                      ? 'border-2 border-green-400 bg-green-50'
+                      : 'border-2 border-gray-200 bg-white hover:border-green-200'
+                    }
+                  `}
                 >
                   {cat.icon} {cat.value}
                 </div>
@@ -128,45 +150,39 @@ export default function CommunityCreate() {
           </div>
 
           {/* 제목 입력 */}
-          <div style={{ marginBottom: '32px' }}>
-            <label style={{ display: 'block', fontWeight: 600, marginBottom: '12px' }}>제목</label>
+          <div className="mb-8">
+            <label className="block font-semibold mb-3">제목</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="제목을 입력해주세요"
               maxLength={maxTitle}
-              style={commonStyles.input}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl 
+                       focus:border-green-400 focus:outline-none transition-colors"
             />
             <CharacterCount current={title.length} max={maxTitle} />
           </div>
 
           {/* 내용 입력 */}
-          <div style={{ marginBottom: '32px' }}>
-            <label style={{ display: 'block', fontWeight: 600, marginBottom: '12px' }}>내용</label>
+          <div className="mb-8">
+            <label className="block font-semibold mb-3">내용</label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="따뜻했던 대화 경험이나 기억에 남는 말을 자유롭게 공유해주세요."
               maxLength={maxContent}
-              style={{ ...commonStyles.input, minHeight: '150px', resize: 'vertical', lineHeight: 1.6 }}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl 
+                       focus:border-green-400 focus:outline-none transition-colors
+                       min-h-[150px] resize-y leading-relaxed"
             />
             <CharacterCount current={content.length} max={maxContent} />
           </div>
 
           {/* 키워드 태그 */}
-          <div style={{ marginBottom: '32px' }}>
-            <label style={{ display: 'block', fontWeight: 600, marginBottom: '12px' }}>키워드 태그</label>
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '8px',
-              border: `2px solid ${colors.border.light}`,
-              borderRadius: borderRadius.medium,
-              padding: '12px',
-              background: colors.white,
-              marginBottom: '8px',
-            }}>
+          <div className="mb-8">
+            <label className="block font-semibold mb-3">키워드 태그</label>
+            <div className="flex flex-wrap gap-2 border-2 border-gray-200 rounded-xl p-3 bg-white mb-2">
               {tags.map(tag => (
                 <Tag key={tag} onRemove={() => handleRemoveTag(tag)}>
                   {tag}
@@ -180,33 +196,34 @@ export default function CommunityCreate() {
                 onBlur={handleAddTag}
                 placeholder="키워드를 입력하고 Enter를 눌러주세요"
                 disabled={tags.length >= maxTags}
-                style={{
-                  border: 'none',
-                  outline: 'none',
-                  flex: 1,
-                  minWidth: '100px',
-                  fontSize: '14px',
-                }}
+                className="border-none outline-none flex-1 min-w-[100px] text-sm
+                         disabled:bg-transparent disabled:cursor-not-allowed"
               />
             </div>
-            <div style={{ fontSize: '13px', color: colors.text.tertiary }}>
+            <div className="text-sm text-gray-500">
               최대 5개까지 추가할 수 있어요 (예: 위로, 공감, 따뜻한말)
             </div>
           </div>
 
           {/* 버튼 */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '40px' }}>
-            <button onClick={handleCancel} style={commonStyles.button.secondary}>
+          <div className="flex justify-center gap-4 mt-10">
+            <button
+              onClick={handleCancel}
+              className="px-8 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold
+                       hover:bg-gray-200 transition-colors"
+            >
               취소
             </button>
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              style={{
-                ...commonStyles.button.primary,
-                background: isSubmitting ? '#ccc' : colors.primary,
-                cursor: isSubmitting ? 'not-allowed' : 'pointer',
-              }}
+              className={`
+                px-8 py-3 rounded-xl font-semibold transition-colors
+                ${isSubmitting
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-green-400 hover:bg-green-500 text-white'
+                }
+              `}
             >
               {isSubmitting ? '등록중...' : '게시글 등록'}
             </button>

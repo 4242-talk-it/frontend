@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ 페이지 이동용 훅
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Header = () => {
   const navigate = useNavigate();
   const [isCompact, setIsCompact] = useState(false);
-  const [currentPath, setCurrentPath] = useState("/community");
+  const navigate = useNavigate(); 
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,12 +24,8 @@ const Header = () => {
   const userName = "김철수";
   const firstLetter = userName.charAt(0);
   const isActive = (p) => currentPath === p;
-
-  // ✅ 공통 네비게이션 핸들러
-  const handleNavClick = (p) => {
-    setCurrentPath(p);
-    navigate(p); // 페이지 이동
-  };
+  
+  const handleNavClick = (p) => navigate(p);
 
   const handleLogout = () => alert("로그아웃 되었습니다.");
 
