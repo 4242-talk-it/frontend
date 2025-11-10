@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 const Header = () => {
   const navigate = useNavigate();
   const [isCompact, setIsCompact] = useState(false);
-  const navigate = useNavigate(); 
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -64,9 +63,9 @@ const Header = () => {
           }}
         >
           {[
-            { path: "/ChattingPage", label: "말잇기" },
-            { path: "/AIChattingPage", label: "AI연습" },
-            { path: "/CommunityPage", label: "커뮤니티" },
+            { path: "/chatting", label: "말잇기" },
+            { path: "/aichat", label: "AI연습" },
+            { path: "/community", label: "커뮤니티" },
           ].map((nav) => (
             <button
               key={nav.path}
@@ -85,7 +84,7 @@ const Header = () => {
         {/* ✅ 프로필 */}
         <div className="flex items-center gap-3">
           <button
-            onClick={() => handleNavClick("/MyPage")}
+            onClick={() => handleNavClick("/mypage")}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
             <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-semibold">

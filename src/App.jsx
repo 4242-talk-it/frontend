@@ -18,8 +18,8 @@ const App = () => {
       <Header />
       <Routes>
           <Route path="/" element={<SaisaiHome />} />
-          <Route path="/MyPage" element={<MyPage/>} />
-          <Route path="/chat" element={<Chattingpage />} />
+          <Route path="/mypage" element={<MyPage/>} />
+          <Route path="/chatting" element={<Chattingpage />} />
           <Route path="/aichat" element={<AIChattingPage />} />
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/community/create" element={<CommunityCreate />} />
