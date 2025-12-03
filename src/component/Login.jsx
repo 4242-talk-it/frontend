@@ -94,14 +94,14 @@ const Login = ({ onSwitchToSignup }) => {
             className="w-full bg-yellow-400 text-black py-3 rounded-xl font-medium hover:bg-yellow-500 transition-all duration-200 flex items-center justify-center space-x-2"
           >
             <div className="w-5 h-5 bg-black rounded-full"></div>
-            <span>카카오로 시작하기</span>
+            <span>카카오로 로그인하기</span>
           </button>
           <button
             onClick={() => handleSocialLogin('구글')}
             className="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-2"
           >
             <div className="w-5 h-5 bg-gradient-to-r from-red-500 to-blue-500 rounded-full"></div>
-            <span>구글로 시작하기</span>
+            <span>구글로 로그인하기</span>
           </button>
         </div>
 

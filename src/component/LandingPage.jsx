@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled, { createGlobalStyle, keyframes } from "styled-components";
 
 // ===== Global Styles =====
@@ -233,6 +234,7 @@ export default function App() {
         sticky.classList.remove("visible");
       }
     };
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -250,6 +252,9 @@ export default function App() {
     ["10턴 제한이 오히려 좋더라구요.", "익명 사용자 C"],
   ];
 
+  
+  const navigate = useNavigate();
+
   return (
     <>
       <GlobalStyle />
@@ -258,8 +263,8 @@ export default function App() {
           <HeaderContent>
             <Logo>말잇기</Logo>
             <div>
-              <Button>로그인</Button>
-              <Button primary>회원가입</Button>
+              <Button onClick={() => navigate("/login")}>로그인</Button>
+              <Button primary onClick={() => navigate("/signup")}>회원가입</Button>
             </div>
           </HeaderContent>
         </Container>
