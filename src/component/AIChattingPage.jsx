@@ -124,7 +124,7 @@ const AICoachChat = () => {
         <div className="p-6 border-b">
           <h2 className="text-xl font-bold text-gray-800 mb-2">AI 말연습장</h2>
           <p className="text-sm text-blue-500 mb-4">부담 없이 연습해보세요</p>
-          <button className="w-full bg-gradient-to-r from-green-400 to-blue-400 text-white py-2.5 rounded-lg font-medium hover:from-green-500 hover:to-blue-500 transition-all">
+          <button className="w-full bg-gradient-to-r from-primary to-secondary text-black py-2.5 rounded-lg font-medium hover:from-green-400 hover:to-blue-400 transition-all">
             무제한 연습 가능
           </button>
         </div>

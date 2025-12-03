@@ -44,8 +44,8 @@ const Header = () => {
           >
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
-            <div className="w-6 h-6 bg-green-400 rounded-full"></div>
-            <div className="w-6 h-6 bg-blue-400 rounded-full"></div>
+            <div className="w-6 h-6 bg-primary rounded-full"></div>
+            <div className="w-6 h-6 bg-secondary rounded-full"></div>
           </div>
           
             사이사이
