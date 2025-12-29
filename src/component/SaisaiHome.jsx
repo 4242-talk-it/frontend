@@ -1,12 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Home, MessageCircle, BarChart3, User, Play, Search, Bell, Award, Calendar, Sparkles } from 'lucide-react';
 
 const SaisaiHome = () => {
+  const [recentStats, setRecentStats] = useState([]);
   const [selectedMood, setSelectedMood] = useState(null);
   const [completedGoals, setCompletedGoals] = useState([true, false, false]);
   const [timeOfDay, setTimeOfDay] = useState('');
 
   useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/stats/recent');
+        console.log("받아온 데이터: ",response.data)
+        setRecentStats(response.data); // 백엔드에서 받은 [ {...}, {...} ] 데이터를 저장
+      } catch (error) {
+        console.error("데이터 로딩 실패:", error);
+      }
+    };
+
+    fetchStats();
+
+    //시간 설정 로직
     const hour = new Date().getHours();
     if (hour < 12) setTimeOfDay('아침');
     else if (hour < 18) setTimeOfDay('오후');
@@ -29,11 +44,6 @@ const SaisaiHome = () => {
     { emoji: '😠', label: '화나요', value: 'angry' }
   ];
 
-  const recentStats = [
-    { label: '이번 주 대화', value: '12회' },
-    { label: '키워드 성공', value: '8/10' },
-    { label: '평균 대화 길이', value: '4턴' }
-  ];
 
   const todaysGoals = [
     '2턴 이상 대화하기',
