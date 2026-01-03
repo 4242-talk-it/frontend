@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../slices/loginSlice";
+import axiosInstance from "../api/axiosInstance";
 
 const Header = () => {
   const navigate = useNavigate();
-  const [isCompact, setIsCompact] = useState(false);
+  const dispatch = useDispatch();
   const location = useLocation();
+  
+  const { isLoggedIn, userInfo } = useSelector((state) => state.login);
+  const [isCompact, setIsCompact] = useState(false);
   const currentPath = location.pathname;
 
   useEffect(() => {
@@ -20,46 +26,49 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const userName = "김철수";
+  const userName = userInfo?.nickname || "사용자";
   const firstLetter = userName.charAt(0);
-  const isActive = (p) => currentPath === p;
   
+  const isActive = (p) => currentPath === p;
   const handleNavClick = (p) => navigate(p);
 
-  const handleLogout = () => alert("로그아웃 되었습니다.");
+  const handleLogout = async () => {
+    if (window.confirm("로그아웃 하시겠습니까?")) {
+      try {
+        await axiosInstance.post('/api/users/logout');
+      } catch (error) {
+        console.error("서버 로그아웃 오류:", error);
+      } finally {
+        dispatch(logout());
+        alert("로그아웃 되었습니다.");
+        navigate("/");
+      }
+    }
+  };
 
   return (
     <header
       className={`sticky top-0 z-[9999] bg-white overflow-hidden transition-all duration-500 ease-in-out ${
-        isCompact
-          ? "h-16 shadow-md border-b border-gray-200"
-          : "h-24 border-b-2 border-gray-100"
+        isCompact ? "h-16 shadow-md border-b border-gray-200" : "h-24 border-b-2 border-gray-100"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative h-full flex items-center justify-between">
-        {/* ✅ 로고 */}
-        <button
-            onClick={() => handleNavClick("/")}
-            className="text-xl font-bold text-gray-800"
-          >
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1">
-            <div className="w-6 h-6 bg-primary rounded-full"></div>
-            <div className="w-6 h-6 bg-secondary rounded-full"></div>
-          </div>
-          
+        <button onClick={() => handleNavClick("/")} className="text-xl font-bold text-gray-800">
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1">
+              <div className="w-6 h-6 bg-purple-500 rounded-full"></div>
+              <div className="w-6 h-6 bg-pink-500 rounded-full"></div>
+            </div>
             사이사이
-          
-        </div>
+          </div>
         </button>
 
-        {/* ✅ 네비게이션 */}
         <nav
           className="hidden md:flex gap-8 absolute left-1/2 -translate-x-1/2"
           style={{
-            top: isCompact ? "50%" : "75%",
+            top: "50%",
             transform: "translate(-50%, -50%)",
-            transition: "top 0.4s ease-in-out",
+            transition: "all 0.4s ease-in-out",
           }}
         >
           {[
@@ -71,9 +80,7 @@ const Header = () => {
               key={nav.path}
               onClick={() => handleNavClick(nav.path)}
               className={`text-lg transition-colors duration-200 ${
-                isActive(nav.path)
-                  ? "text-green-500 font-semibold"
-                  : "text-gray-500 hover:text-gray-900"
+                isActive(nav.path) ? "text-purple-600 font-semibold" : "text-gray-500 hover:text-gray-900"
               }`}
             >
               {nav.label}
@@ -81,23 +88,41 @@ const Header = () => {
           ))}
         </nav>
 
-        {/* ✅ 프로필 */}
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => handleNavClick("/mypage")}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-          >
-            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-semibold">
-              {firstLetter}
-            </div>
-            <span className="text-gray-800 font-medium">{userName}님</span>
-          </button>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            로그아웃
-          </button>
+          {isLoggedIn ? (
+            <>
+              <button
+                onClick={() => handleNavClick("/mypage")}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
+                <div className="w-10 h-10 bg-gradient-to-tr from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold shadow-sm">
+                  {firstLetter}
+                </div>
+                <span className="text-gray-800 font-medium hidden sm:inline">{userName}님</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm text-gray-600 hover:text-red-500 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all"
+              >
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => handleNavClick("/login")}
+                className="px-5 py-2 text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors"
+              >
+                로그인
+              </button>
+              <button
+                onClick={() => handleNavClick("/signup")}
+                className="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl hover:opacity-90 transition-all shadow-md"
+              >
+                회원가입
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>
