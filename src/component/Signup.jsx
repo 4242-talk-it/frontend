@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, ChevronDown, Eye, EyeOff } from 'lucide-react';
+import axiosInstance from "../api/axiosInstance";
 
-const Signup = ({ onSwitchToLogin }) => {
+const Signup = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '', password: '', nickname: '', gender: '', birthYear: '', agreeTerms: false
   });
@@ -15,17 +18,29 @@ const Signup = ({ onSwitchToLogin }) => {
     }));
   };
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     if (!formData.agreeTerms) {
       alert('이용약관에 동의해주세요.');
       return;
     }
-    alert('회원가입 처리 중...');
-    console.log('Signup data:', formData);
-  };
+    try {
+      const response = await axiosInstance.post('/api/users/signup', {
+        email: formData.email,
+        password: formData.password,
+        nickname: formData.nickname,
+        gender: formData.gender,
+        birthYear: parseInt(formData.birthYear)
+      });
 
-  const handleSocialLogin = (provider) => {
-    alert(`${provider} 로그인 연동 준비중입니다!`);
+      if (response.status === 200 || response.status === 201) {
+        alert('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.');
+        navigate('/login'); // 성공 시 이동
+      }
+    } catch (error) {
+      console.error('회원가입 에러:', error);
+      const message = error.response?.data?.message || '회원가입 실패';
+      alert(message);
+    }
   };
 
   const currentYear = new Date().getFullYear();
@@ -199,7 +214,7 @@ const Signup = ({ onSwitchToLogin }) => {
           <div className="text-center mt-4">
             <span className="text-gray-600">이미 계정이 있으신가요? </span>
             <button
-              onClick={onSwitchToLogin}
+              onClick={() => navigate('/login')}
               className="text-purple-600 font-medium hover:text-purple-700 transition-colors duration-200"
             >
               로그인
