@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../../api/axiosInstance';
 
 const PageHeader = ({ title, subtitle }) => (
   <div className="text-center mb-10">
@@ -83,33 +84,37 @@ export default function StoryForm() {
       return;
     }
 
-    setIsSubmitting(true);
+    //setIsSubmitting(true);
     try {
-      // 여기에 실제 제출 로직 추가(서버 전송)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const newPost = {
-        id: Date.now(),
-        category,
-        title,
-        content,
-        tags,
-        author: '홍길동',
-        createdAt: new Date().toISOString(),
+      const requestData = {
+        title: title,
+        content: content,
+        category: category
       };
-      alert('게시글이 등록되었습니다!');
-      navigate('/community', { state: { newPost } });
 
-      setCategory('');
-      setTitle('');
-      setContent('');
-      setTags([]);
-      setTagInput('');
-    } catch (error) {
-      alert('등록 중 오류가 발생했습니다.');
-    } finally {
-      setIsSubmitting(false);
-    }
+      const response = await axiosInstance.post('/api/community/create',requestData);
+      
+      if(response.status === 200 || response.status===201) {
+        alert('게시글이 성공적으로 등록되었습니다!');
+
+        const createdPost = response.data.data;
+        navigate('/community',{state:{newPost: createdPost}});
+
+        setCategory('');
+        setTitle('');
+        setContent('');
+        setTags([]);
+      }
+
+    }catch (error) {
+        console.error("게시글 등록 에러:", error);
+        const errorMsg = error.response?.data?.message || '등록 중 오류가 발생했습니다.';
+        alert(errorMsg);
+      }finally {
+        setIsSubmitting(false);
+      }
+      
+    
   };
 
   return (

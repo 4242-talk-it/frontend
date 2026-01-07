@@ -15,10 +15,10 @@ function App() {
       // 쿠키 방식이라면 토큰이 없어도 status 체크를 시도할 수 있습니다.
       if (token) {
         try {
-          const response = await axiosInstance.get('/api/users/me'); // 내 정보 가져오기 엔드포인트
+          const response = await axiosInstance.get('/api/auth/status'); // 내 정보 가져오기 엔드포인트
           dispatch(loginSuccess(response.data.user));
         } catch (err) {
-          console.log("세션 만료 또는 유효하지 않은 토큰");
+          console.log("세션 만료 또는 유효하지 않은 토큰: ",err);
           // 로그아웃 처리 등을 수행할 수 있습니다.
         }
       }
