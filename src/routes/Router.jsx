@@ -1,13 +1,14 @@
 import { createBrowserRouter } from 'react-router-dom';
-import App from '../App'; // App 컴포넌트 임포트 확인!
+import App from '../App';
 import LandingPage from "../component/LandingPage";
 import SaisaiHome from "../component/SaisaiHome";
 import Login from "../component/Login";
 import Signup from "../component/Signup";
 import ChattingPage from "../component/ChattingPage"; 
-import CommunityPage from "../pages/community/CommunityPage";
+import CommunityListPage from "../pages/community/CommunityListPage";
 import CommunityCreate from "../pages/community/CommunityCreate";
 import CommunityDetail from "../pages/community/CommunityDetail";
+import CommunityEdit from "../pages/community/CommunityEdit"; 
 import MyPage from "../component/MyPage";
 import AIChattingPage from "../component/AIChattingPage";
 import AuthenticatedRoute from "./AuthenticatedRoute";
@@ -61,7 +62,6 @@ const router = createBrowserRouter([
           </AuthenticatedRoute>
         ),
       },
-      // 커뮤니티 그룹화
       {
         path: 'community',
         children: [
@@ -69,7 +69,7 @@ const router = createBrowserRouter([
             index: true,
             element: (
               <AuthenticatedRoute>
-                <CommunityPage />
+                <CommunityListPage />
               </AuthenticatedRoute>
             ),
           },
@@ -82,10 +82,18 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: 'detail',
+            path: 'detail/:id',
             element: (
               <AuthenticatedRoute>
                 <CommunityDetail />
+              </AuthenticatedRoute>
+            ),
+          },
+          {
+            path: 'edit/:id', 
+            element: (
+              <AuthenticatedRoute>
+                <CommunityEdit />
               </AuthenticatedRoute>
             ),
           },
@@ -95,7 +103,7 @@ const router = createBrowserRouter([
   },
   {
     path: '*',
-    element: <LandingPage />, // 정의되지 않은 경로는 랜딩페이지로
+    element: <LandingPage />,
   },
 ]);
 
