@@ -16,11 +16,11 @@ const CharacterCount = ({ current, max }) => (
 );
 
 const Tag = ({ children, onRemove }) => (
-  <div className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-sm font-medium">
+  <div className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-black rounded-full text-sm font-medium">
     <span>{children}</span>
     <button
       onClick={onRemove}
-      className="hover:text-green-900 transition-colors ml-1"
+      className="hover:text-blue-900 transition-colors ml-1"
       aria-label="태그 삭제"
     >
       ×
@@ -43,10 +43,11 @@ export default function StoryForm() {
   const maxTags = 5;
 
   const categories = [
-    { id: 1, value: '대화 후기', icon: '💬' },
-    { id: 2, value: '일상 이야기', icon: '☀️' },
-    { id: 3, value: '감사 인사', icon: '🙏' },
-    { id: 4, value: '추천 공유', icon: '⭐' },
+    { id: 1, value: '대화후기', icon: '💬' },
+    { id: 2, value: '일상공유', icon: '🌿' },
+    { id: 3, value: '질문하기', icon: '❓' },
+    { id: 4, value: '꿀팁공유', icon: '💡' },
+    { id: 5, value: '감사인사', icon: '🙏' },
   ];
 
   const handleRemoveTag = (tagToRemove) => {
@@ -134,7 +135,7 @@ export default function StoryForm() {
           {/* 카테고리 선택 */}
           <div className="mb-8">
             <label className="block font-semibold mb-3">카테고리</label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
               {categories.map(cat => (
                 <div
                   key={cat.id}
@@ -143,8 +144,8 @@ export default function StoryForm() {
                     flex items-center justify-center p-4 rounded-xl cursor-pointer
                     transition-all duration-300 font-medium
                     ${category === cat.value
-                      ? 'border-2 border-green-400 bg-green-50'
-                      : 'border-2 border-gray-200 bg-white hover:border-green-200'
+                      ? 'border-2 border-blue-400 bg-blue-50'
+                      : 'border-2 border-gray-200 bg-white hover:border-blue-200'
                     }
                   `}
                 >
@@ -164,7 +165,7 @@ export default function StoryForm() {
               placeholder="제목을 입력해주세요"
               maxLength={maxTitle}
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl 
-                       focus:border-green-400 focus:outline-none transition-colors"
+                       focus:border-blue-400 focus:outline-none transition-colors"
             />
             <CharacterCount current={title.length} max={maxTitle} />
           </div>
@@ -178,7 +179,7 @@ export default function StoryForm() {
               placeholder="따뜻했던 대화 경험이나 기억에 남는 말을 자유롭게 공유해주세요."
               maxLength={maxContent}
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl 
-                       focus:border-green-400 focus:outline-none transition-colors
+                       focus:border-blue-400 focus:outline-none transition-colors
                        min-h-[150px] resize-y leading-relaxed"
             />
             <CharacterCount current={content.length} max={maxContent} />
@@ -225,8 +226,8 @@ export default function StoryForm() {
               className={`
                 px-8 py-3 rounded-xl font-semibold transition-colors
                 ${isSubmitting
-                  ? 'bg-gray-300 cursor-not-allowed'
-                  : 'bg-green-400 hover:bg-green-500 text-white'
+                  ? 'bg-blue-300 cursor-not-allowed'
+                  : 'bg-blue-400 hover:bg-blue-500 text-white'
                 }
               `}
             >
