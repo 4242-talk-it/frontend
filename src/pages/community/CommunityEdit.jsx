@@ -54,6 +54,7 @@ export default function CommunityEdit() {
         setCategory(postData.category);
         setTitle(postData.title);
         setContent(postData.content);
+        setTags(postData.tags);
       } catch (error) {
         console.error("데이터 로딩 실패:", error);
         alert('게시글을 불러오는데 실패했습니다.');
@@ -92,14 +93,15 @@ export default function CommunityEdit() {
       const requestData = {
         title: title,
         content: content,
-        category: category
+        category: category,
+        tags: tags
       };
 
       // PUT 메서드 사용 및 JSON 객체 전달
       await axiosInstance.put(`/api/community/${id}`, requestData);
       
       alert('게시글이 성공적으로 수정되었습니다!');
-      navigate(`/community/post/${id}`); 
+      navigate(`/community/detail/${id}`); 
     } catch (error) {
       console.error("수정 중 에러:", error);
       alert('수정 중 오류가 발생했습니다.');
