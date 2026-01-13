@@ -85,12 +85,13 @@ export default function StoryForm() {
       return;
     }
 
-    //setIsSubmitting(true);
+    setIsSubmitting(true);
     try {
       const requestData = {
         title: title,
         content: content,
-        category: category
+        category: category,
+        tags: tags
       };
 
       const response = await axiosInstance.post('/api/community/create',requestData);
