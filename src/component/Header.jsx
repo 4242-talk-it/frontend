@@ -13,6 +13,7 @@ const Header = () => {
   const [isCompact, setIsCompact] = useState(false);
   const currentPath = location.pathname;
 
+  // 스크롤 시 헤더 높이 조절 이벤트
   useEffect(() => {
     const handleScroll = () => {
       const y = window.scrollY;
@@ -26,6 +27,19 @@ const Header = () => {
   const firstLetter = userName.charAt(0);
   
   const isActive = (p) => currentPath === p;
+
+  // 로고 클릭 핸들러: 경로와 로그인 상태에 따른 분기
+  const handleLogoClick = () => {
+    // 1. 이미 LandingPage(/)에 있다면 클릭 무시
+    if (currentPath === "/") return;
+
+    // 2. 로그인 상태(토큰 유효)면 /home으로, 아니면 /로 이동
+    if (isLoggedIn) {
+      navigate("/home");
+    } else {
+      navigate("/");
+    }
+  };
 
   const handleLogout = async () => {
     if (window.confirm("로그아웃 하시겠습니까?")) {
@@ -49,8 +63,16 @@ const Header = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
         
-        {/* LOGO: 연두(#A5F278) & 하늘(#7AADFE) */}
-        <button onClick={() => navigate("/")} className="flex items-center gap-2 group">
+        {/* LOGO: 경로 및 로그인 상태에 따른 동적 버튼 */}
+        <button 
+          onClick={handleLogoClick} 
+          disabled={currentPath === "/"}
+          className={`flex items-center gap-2 group transition-all ${
+            currentPath === "/" 
+              ? "cursor-default opacity-100" // 랜딩페이지일 때
+              : "cursor-pointer active:scale-95 hover:opacity-80" // 그 외 페이지일 때
+          }`}
+        >
           <div className="flex gap-1">
             <div className="w-5 h-5 rounded-full" style={{ backgroundColor: "#A5F278" }}></div>
             <div className="w-5 h-5 rounded-full" style={{ backgroundColor: "#7AADFE" }}></div>
@@ -85,7 +107,6 @@ const Header = () => {
                 onClick={() => navigate("/mypage")}
                 className="flex items-center gap-2 hover:opacity-80 transition-opacity"
               >
-                {/* 유저 아바타: 연두색 배경 */}
                 <div className="w-9 h-9 rounded-full flex items-center justify-center text-gray-700 font-bold shadow-sm" style={{ backgroundColor: "#A5F278" }}>
                   {firstLetter}
                 </div>
