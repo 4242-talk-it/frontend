@@ -1,16 +1,11 @@
-// src/slices/loginSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const getInitialUserInfo = () => {
   const savedInfo = localStorage.getItem('userInfo');
-  // 값이 없거나, 문자열 "undefined"인 경우를 모두 체크
-  if (!savedInfo || savedInfo === "undefined") {
-    return null;
-  }
+  if (!savedInfo || savedInfo === "undefined") return null;
   try {
     return JSON.parse(savedInfo);
   } catch (e) {
-    console.error("userInfo parse error", e);
     return null;
   }
 };
@@ -18,6 +13,7 @@ const getInitialUserInfo = () => {
 const initialState = {
   isLoggedIn: !!localStorage.getItem('accessToken'),
   userInfo: getInitialUserInfo(),
+  isLoading: true, // 🚩 핵심: 초기값을 true로 설정합니다.
 };
 
 const loginSlice = createSlice({
@@ -27,7 +23,7 @@ const loginSlice = createSlice({
     loginSuccess: (state, action) => {
       state.isLoggedIn = true;
       state.userInfo = action.payload;
-      // 저장할 때 데이터가 유효한지 확인
+      state.isLoading = false; // 🚩 로딩 완료
       if (action.payload) {
         localStorage.setItem('userInfo', JSON.stringify(action.payload));
       }
@@ -35,11 +31,15 @@ const loginSlice = createSlice({
     logout: (state) => {
       state.isLoggedIn = false;
       state.userInfo = null;
+      state.isLoading = false; // 🚩 로딩 완료
       localStorage.removeItem('accessToken');
       localStorage.removeItem('userInfo');
+    },
+    setLoading: (state, action) => { // 🚩 수동 로딩 제어용
+      state.isLoading = action.payload;
     },
   },
 });
 
-export const { loginSuccess, logout } = loginSlice.actions;
+export const { loginSuccess, logout, setLoading } = loginSlice.actions;
 export default loginSlice.reducer;
