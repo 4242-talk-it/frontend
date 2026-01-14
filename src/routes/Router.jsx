@@ -5,11 +5,11 @@ import SaisaiHome from "../component/SaisaiHome";
 import Login from "../component/Login";
 import Signup from "../component/Signup";
 import ChattingPage from "../component/ChattingPage"; 
-import CommunityListPage from "../pages/community/CommunityListPage";
-import CommunityCreate from "../pages/community/CommunityCreate";
-import CommunityDetail from "../pages/community/CommunityDetail";
-import CommunityEdit from "../pages/community/CommunityEdit"; 
-import MyPage from "../component/MyPage";
+import CommunityListPage from "../component/community/CommunityListPage";
+import CommunityCreate from "../component/community/CommunityCreate";
+import CommunityDetail from "../component/community/CommunityDetail";
+import CommunityEdit from "../component/community/CommunityEdit"; 
+import MyPage from "../component/mypage/MyPage";
 import AIChattingPage from "../component/AIChattingPage";
 import AuthenticatedRoute from "./AuthenticatedRoute";
 

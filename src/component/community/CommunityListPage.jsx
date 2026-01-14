@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, User, Grid, List, Loader2 } from 'lucide-react';
 import axiosInstance from '../../api/axiosInstance'; 
-import TopButton from '../../component/button/TopButton';
-import CreateButton from '../../component/button/CreateButton';
+import TopButton from '../button/TopButton';
+import CreateButton from '../button/CreateButton';
 
 const CommunityListPage = () => {
   const [posts, setPosts] = useState([]);
