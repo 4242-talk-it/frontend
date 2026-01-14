@@ -65,20 +65,33 @@ export default function CommunityDetail() {
   const navigate = useNavigate();
 
   const [post, setPost] = useState(null);
+  const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState("");
 
   const fetchPostDetail = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get(`/api/community/${id}`);
-      if (response.data && response.data.data) {
-        setPost(response.data.data);
-      }
+      const [postRes, commentRes] = await Promise.all([
+        axiosInstance.get(`/api/community/${id}`),
+        axiosInstance.get(`/api/community/${id}/comments`, {
+        params: { pageNo: 1, pageSize: 100 } // 추가됨
+      })
+        
+      ]);
+
+      if (postRes.data?.data) setPost(postRes.data.data);
+      if (commentRes.data?.data?.content) setComments(commentRes.data.data.content);
+      
     } catch (error) {
       console.error("데이터 로드 실패:", error);
-      alert("게시글을 불러올 수 없습니다.");
+      if (error.response?.status === 401) {
+       alert("로그인이 필요합니다.");
+       navigate('/login');
+    } else {
+      alert("데이터를 불러올 수 없습니다.");
       navigate('/community');
+    }
     } finally {
       setLoading(false);
     }
@@ -93,7 +106,7 @@ export default function CommunityDetail() {
       await axiosInstance.post(`/api/community/${id}/like`);
       fetchPostDetail(); // 데이터 갱신
     } catch (e) {
-      alert("좋아요 처리에 실패했습니다.");
+      alert("좋아요 처리에 실패했습니다.",e);
     }
   };
 
@@ -101,11 +114,59 @@ export default function CommunityDetail() {
     if (!window.confirm("정말로 삭제하시겠습니까?")) return;
     try {
       await axiosInstance.delete(`/api/community/${id}`);
+      alert("정상적으로 삭제되었습니다.");
       navigate('/community');
     } catch (e) {
-      alert("삭제 권한이 없습니다.");
+      alert("삭제 권한이 없습니다.",e);
     }
   };
+
+  const handleCommentSubmit = async () => {
+    if (!commentText.trim()) {
+      alert("댓글 내용을 입력해주세요.");
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.post(`/api/community/${id}/comments`, {
+        content: commentText
+      });
+      
+      alert(response.data.message || "댓글이 등록되었습니다.");
+      setCommentText(""); // 입력창 초기화
+      
+      // 댓글 목록만 새로고침
+      const commentRes = await axiosInstance.get(`/api/community/${id}/comments`, {
+      params: { pageNo: 1, pageSize: 100 }
+    });
+      if (commentRes.data?.data?.content) setComments(commentRes.data.data.content);
+      
+    } catch (e) {
+      alert(e.response?.data?.message || "댓글 등록에 실패했습니다.");
+    }
+  };
+
+//댓글 삭제
+  const handleDeleteComment = async (commentId) => {
+  if (!window.confirm("정말로 이 댓글을 삭제하시겠습니까?")) return;
+
+  try {
+    // 백엔드 경로: /api/community/{id}/comments/{commentId}
+    await axiosInstance.delete(`/api/community/${id}/comments/${commentId}`);
+    
+    alert("댓글이 삭제되었습니다.");
+    
+    // 댓글 목록만 새로고침 (기존에 만든 로직 재사용)
+    const commentRes = await axiosInstance.get(`/api/community/${id}/comments`, {
+      params: { pageNo: 1, pageSize: 100 }
+    });
+    if (commentRes.data?.data?.content) setComments(commentRes.data.data.content);
+    
+  } catch (e) {
+    const errorMsg = e.response?.data?.message || "댓글 삭제에 실패했습니다.";
+    alert(errorMsg);
+  }
+};
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -175,7 +236,7 @@ export default function CommunityDetail() {
                 active={post.isLiked}
                 onClick={handleToggleLike}
               />
-              <ActionButton icon="💬" count={post.commentCount} disabled />
+              <ActionButton icon="💬" count={comments.length} disabled />
             </div>
             <div className="flex gap-3">
               <ShareButton icon="🔗" title="링크 복사" onClick={() => {
@@ -189,7 +250,7 @@ export default function CommunityDetail() {
         {/* 댓글 섹션 */}
         <section className="bg-white rounded-2xl shadow-lg p-8">
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
-            <h2 className="text-xl font-semibold text-gray-900">댓글</h2>
+            <h2 className="text-xl font-semibold text-gray-900">댓글({comments.length})</h2>
           </div>
 
           {/* 댓글 작성 */}
@@ -204,12 +265,43 @@ export default function CommunityDetail() {
             <div className="flex justify-end items-center mt-3">
               <button 
                 className="bg-green-400 text-white px-6 py-3 rounded-xl font-medium hover:bg-green-500 transition-colors"
-                onClick={() => alert('댓글 기능은 곧 업데이트됩니다!')}
+                onClick={handleCommentSubmit}
               >
                 댓글 작성
               </button>
             </div>
           </div>
+
+          {/* 댓글 리스트 랜링 */}
+          <div className="space-y-6">
+            {comments.length > 0 ? (
+              comments.map((comment) => (
+                <div key={comment.id} className="pb-6 border-b border-gray-50 last:border-0">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <UserAvatar name={comment.nickname} size={32} />
+                      <span className="font-semibold text-gray-800">{comment.nickname}</span>
+                      <span className="text-xs text-gray-400">
+                        {comment.createdAt?.split('T')[0]}
+                      </span>
+                    </div>
+                    {comment.isOwnedByUser && (
+                       <button onClick={() => handleDeleteComment(comment.id)}
+                       className="text-xs text-gray-400 hover:text-red-500 transition-colors">삭제</button>
+                    )}
+                  </div>
+                  <p className="text-gray-700 leading-relaxed pl-11">
+                    {comment.content}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-10 text-gray-400">
+                첫 번째 댓글을 남겨보세요! ✍️
+              </div>
+            )}
+          </div>
+
         </section>
       </div>
     </div>
