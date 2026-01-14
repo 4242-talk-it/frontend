@@ -28,12 +28,8 @@ const Header = () => {
   
   const isActive = (p) => currentPath === p;
 
-  // 로고 클릭 핸들러: 경로와 로그인 상태에 따른 분기
   const handleLogoClick = () => {
-    // 1. 이미 LandingPage(/)에 있다면 클릭 무시
     if (currentPath === "/") return;
-
-    // 2. 로그인 상태(토큰 유효)면 /home으로, 아니면 /로 이동
     if (isLoggedIn) {
       navigate("/home");
     } else {
@@ -46,11 +42,14 @@ const Header = () => {
       try {
         await axiosInstance.post('/api/users/logout');
       } catch (error) {
-        console.error("서버 로그아웃 오류:", error);
+        console.error(error);
       } finally {
-        dispatch(logout());
         alert("로그아웃 되었습니다.");
-        navigate("/");
+        navigate("/", { replace: true });
+        
+        setTimeout(() => {
+          dispatch(logout());
+        }, 10);
       }
     }
   };
