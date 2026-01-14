@@ -23,18 +23,15 @@ export default function App() {
       {/* HEADER */}
       <header className="w-full bg-white shadow-sm sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-        <button
-            onClick={() => handleNavClick("/")}
-            className="text-xl font-bold text-gray-800"
-          >
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1">
-            <div className="w-6 h-6 bg-primary rounded-full"></div>
-            <div className="w-6 h-6 bg-secondary rounded-full"></div>
-          </div>
+          
+          {/* 버튼 대신 div를 사용하여 클릭 기능을 제거합니다 */}
+          <div className="flex items-center gap-2 text-xl font-bold text-gray-800">
+            <div className="flex gap-1">
+              <div className="w-6 h-6 rounded-full" style={{ backgroundColor: COLORS.primary }}></div>
+              <div className="w-6 h-6 rounded-full" style={{ backgroundColor: COLORS.secondary }}></div>
+            </div>
             말잇기
-        </div>
-        </button>
+          </div>
 
           <div className="flex gap-3">
             <button onClick={() => navigate("/login")} className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition">
@@ -57,24 +54,16 @@ export default function App() {
         <p className="text-gray-600 mb-10">
           10턴의 짧은 익명 대화, 매일 가벼운 말문 트기
         </p>
-
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center">
           <button
-            className="px-6 py-3 rounded-xl text-black font-semibold shadow"
-            style={{ backgroundColor: COLORS.primary }}
+            onClick={() => navigate("/login")}
+            className="px-10 py-4 rounded-2xl text-black font-bold shadow-lg hover:scale-105 transition-transform flex flex-col items-center"
+            style={{ backgroundColor: COLORS.secondary }}
           >
-            Talk It Now! 🗣️
-          </button>
-
-          <button
-            className="px-6 py-3 rounded-xl border"
-            style={{ color: COLORS.secondary, borderColor: COLORS.secondary }}
-          >
-            말잇기 시작
+            <span className="text-xl">말잇기 시작</span>
+            <span className="text-lg opacity-70 font-normal">Talk It Now!</span>
           </button>
         </div>
-
-        <div className="text-6xl mt-10">💬✨</div>
       </section>
 
       {/* FEATURES */}
@@ -96,37 +85,57 @@ export default function App() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-gray-900 text-gray-200 py-16 mt-20">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
-          <div>
-            <h4 className="text-green-200 font-semibold mb-3">말잇기</h4>
-            <p className="text-gray-400">짧은 대화로 성장하는 말하기 습관 훈련장</p>
+      <footer className="bg-gray-900 text-gray-200 py-20 mt-20">
+        <div className="max-w-6xl mx-auto px-10">
+          
+          {/* 3개의 영역을 그리드로 나누어 간격을 정확히 일치시킵니다 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-20">
+            
+            {/* 1번 영역: 브랜드/로고 */}
+            <div className="flex flex-col items-start">
+              <div className="text-2xl font-bold text-white mb-4">말잇기</div>
+              <p className="text-gray-500 text-sm leading-relaxed">
+                짧은 대화로 성장하는<br />당신의 말하기 습관
+              </p>
+            </div>
+
+            {/* 2번 영역: 서비스 (정확히 중앙) */}
+            <div className="flex flex-col md:items-center">
+              <div className="text-left md:text-left min-w-[100px]">
+                <h4 className="text-green-200 font-bold mb-6 text-lg tracking-wide">서비스</h4>
+                <ul className="space-y-4 text-gray-400">
+                  <li className="hover:text-white cursor-pointer transition">기능 소개</li>
+                  <li className="hover:text-white cursor-pointer transition">요금제</li>
+                  <li className="hover:text-white cursor-pointer transition">FAQ</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* 3번 영역: 팀 정보 (오른쪽) */}
+            <div className="flex flex-col md:items-end">
+              <div className="text-left md:text-left min-w-[100px]">
+                <h4 className="text-green-200 font-bold mb-6 text-lg tracking-wide">팀 정보</h4>
+                <ul className="space-y-4 text-gray-400">
+                  <li className="hover:text-white cursor-pointer transition">소개</li>
+                  <li className="hover:text-white cursor-pointer transition">문의</li>
+                  <li className="hover:text-white cursor-pointer transition">블로그</li>
+                </ul>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <h4 className="text-green-200 font-semibold mb-3">서비스</h4>
-            <ul className="space-y-2 text-gray-400">
-              <li>기능 소개</li>
-              <li>요금제</li>
-              <li>FAQ</li>
-            </ul>
-          </div>
+          {/* 하단 구분선 */}
+          <div className="w-full border-t border-gray-800 mb-10 opacity-50"></div>
 
-          <div>
-            <h4 className="text-green-200 font-semibold mb-3">회사</h4>
-            <ul className="space-y-2 text-gray-400">
-              <li>소개</li>
-              <li>문의</li>
-              <li>블로그</li>
-            </ul>
+          {/* 카피라이트 */}
+          <div className="flex flex-col md:flex-row justify-between items-center text-gray-500 text-sm gap-4">
+            <div>© 2025 <span className="text-gray-400">말잇기</span>. All rights reserved.</div>
+            <div className="text-gray-600">
+              Designed by <span className="font-medium text-gray-500">Team 말잇기</span>
+            </div>
           </div>
-        </div>
-
-        <div className="text-center text-gray-500 text-sm mt-10">
-          © 2025 말잇기. All rights reserved.
         </div>
       </footer>
-
     </div>
   );
 }
