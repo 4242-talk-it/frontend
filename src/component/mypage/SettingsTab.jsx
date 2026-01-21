@@ -59,6 +59,21 @@ const SettingsTab = ({
     }
   };
 
+  const handleWithdraw = async () => {
+    if (!window.confirm("정말로 탈퇴하시겠습니까?\n한 달 이내 로그인할 시 계정이 복구되며 아닐 시 모든 정보가 영구 삭제됩니다.")) {
+      return;
+    }
+    try {
+      await axiosInstance.patch('/api/users/withdraw');
+      alert("회원 탈퇴 요청이 완료되었습니다.");
+      localStorage.clear(); 
+      window.location.href = "/"; 
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "탈퇴 처리 중 오류가 발생했습니다.";
+      alert(errorMessage);
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -124,6 +139,14 @@ const SettingsTab = ({
             />
           </div>
         </div>
+        <div className="text-right mt-2">
+    <button
+      onClick={handleWithdraw}
+      className="text-xs text-gray-400 hover:text-red-500 underline transition-colors"
+    >
+      회원 탈퇴
+    </button>
+  </div>
       </div>
 
       {/* 환경 설정 */}
