@@ -19,7 +19,6 @@ const Login = () => {
   };
 
   const handleLogin = async (e) => {
-    // 폼 제출 시 페이지 새로고침 방지
     if (e) e.preventDefault();
     
     if (!formData.email || !formData.password) {
@@ -30,33 +29,29 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // 1. 로그인 API 호출
       const response = await axiosInstance.post('/api/users/login', formData);
-      
-      /**
-       * 백엔드 ResponseDto 구조 대응:
-       * response.data => { data: { user: { ... } }, message: "..." }
-       */
       const responseBody = response.data; 
       const userData = responseBody.data?.user;
 
       if (userData) {
-        // 2. Redux 상태 업데이트
         dispatch(loginSuccess(userData));
-        
-        // 3. 성공 알림 및 페이지 이동
-        alert(responseBody.message || "로그인에 성공했습니다!");
+        alert("로그인에 성공했습니다!");
         navigate('/home'); 
-      } else {
-        alert("유저 정보를 불러올 수 없습니다.");
       }
     } catch (error) {
-      console.error("로그인 에러 상세:", error);
+      // 🚩 실패 시 비밀번호 필드만 초기화 (이메일은 남겨둠)
+      setFormData(prev => ({ ...prev, password: '' }));
+
       if (error.response) {
-        // 백엔드 BusinessLogicException 메시지 출력
-        alert(error.response.data?.message || "이메일 또는 비밀번호를 확인해주세요.");
+        // 백엔드에서 NOT_FOUND_USER 메시지가 와도 프론트에서 커스텀 출력
+        const serverMsg = error.response.data?.message;
+        if (serverMsg === "사용자를 찾을 수 없습니다.") {
+          alert("이메일 또는 비밀번호가 일치하지 않습니다.");
+        } else {
+          alert(serverMsg || "로그인 정보를 확인해주세요.");
+        }
       } else {
-        alert("서버와 통신할 수 없습니다. 서버 상태를 확인하세요.");
+        alert("서버 연결에 실패했습니다.");
       }
     } finally {
       setIsLoading(false);

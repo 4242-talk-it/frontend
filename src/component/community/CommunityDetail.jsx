@@ -103,10 +103,21 @@ export default function CommunityDetail() {
 
   const handleToggleLike = async () => {
     try {
-      await axiosInstance.post(`/api/community/${id}/like`);
-      fetchPostDetail(); // 데이터 갱신
+      // API 호출 (백엔드 경로가 /toggle임을 확인하세요)
+      await axiosInstance.post(`/api/community/${id}/like/toggle`);
+
+      // 새로고침 없이 화면의 하트와 숫자를 즉시 변경 (방법 B)
+      setPost(prev => {
+        const currentLiked = prev.isLiked;
+        return {
+          ...prev,
+          isLiked: !currentLiked,
+          likeCount: currentLiked ? prev.likeCount - 1 : prev.likeCount + 1
+        };
+      });
     } catch (e) {
-      alert("좋아요 처리에 실패했습니다.",e);
+      console.error("좋아요 실패:", e);
+      alert("좋아요 처리에 실패했습니다.");
     }
   };
 

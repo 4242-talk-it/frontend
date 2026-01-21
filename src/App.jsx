@@ -1,47 +1,38 @@
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { useLocation, Outlet } from 'react-router-dom';
-import Header from "./component/Header";
-import axiosInstance from "./api/axiosInstance";
-import { loginSuccess, logout, setLoading } from "./slices/loginSlice"; // setLoading 추가
+import { useDispatch, useSelector } from 'react-redux'; 
+import { fetchUserStatus } from './slices/loginSlice.js';
+import { RouterProvider } from 'react-router-dom';
+import router from '../src/routes/Router.jsx';
 
 function App() {
   const dispatch = useDispatch();
-  const location = useLocation();
+  
+  // 🚩 store.js에 등록된 리듀서 키 이름이 'loginSlice'가 맞는지 꼭 확인하세요!
+  // 만약 store에서 login: loginReducer 라고 했다면 state.login 으로 바꿔야 합니다.
+  const loginState = useSelector((state) => state.login || state.loginSlice);
+  const isInitialized = loginState?.isInitialized;
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem('accessToken');
-      
-      if (token) {
-        try {
-          const response = await axiosInstance.get('/api/auth/status');
-          // 백엔드 응답 구조에 맞춰 데이터 주입
-          dispatch(loginSuccess(response.data.data?.user || response.data));
-        } catch (err) {
-          console.log("세션 만료 또는 유효하지 않은 토큰");
-          dispatch(logout()); // 여기서 로딩 종료 처리도 함께 됨
-        }
-      } else {
-        // 토큰이 아예 없는 경우 검사 종료 알림
-        dispatch(setLoading(false));
-      }
-    };
-    
-    checkAuth();
+    console.log('App mounted, dispatching fetchUserStatus...');
+    dispatch(fetchUserStatus())
+      .then((result) => {
+        console.log('FetchUserStatus result:', result);
+      })
+      .catch((error) => {
+        console.error('FetchUserStatus error:', error);
+      });
   }, [dispatch]);
 
-  const hideHeaderPaths = ["/", "/login", "/signup"];
-  const shouldHideHeader = hideHeaderPaths.includes(location.pathname);
+  // 서버로부터 정보를 받아올 때까지(isInitialized가 true가 될 때까지) 가드!
+  if (!isInitialized) {
+    return (
+      <div className="flex justify-center items-center h-screen font-bold">
+        잠시만 기다려주세요...
+      </div>
+    ); 
+  }
 
-  return (
-    <div className="app-container">
-      {!shouldHideHeader && <Header />}
-      <main className="content">
-        <Outlet /> 
-      </main>
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
