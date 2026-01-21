@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, Edit3, Trash2 } from 'lucide-react';
 import axiosInstance from '../../api/axiosInstance';
 
-// --- 기존 디자인 컴포넌트 복구 ---
 const BackButton = ({ onClick }) => (
   <button onClick={onClick} className="flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 border-2 border-gray-200 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm mb-6">
     <ArrowLeft size={20} />
@@ -231,11 +230,15 @@ export default function CommunityDetail() {
             {post.content}
           </div>
 
-          {/* 태그 (데이터에 태그가 있다면 매핑 가능) */}
+          {/* 태그 */}
           <div className="flex flex-wrap gap-2 mb-8">
-            {post.tags?.map(tag => (
-              <Tag key={tag}>{tag}</Tag>
-            )) || <Tag>#커뮤니티</Tag>}
+            {post.tags && post.tags.length > 0 ? (
+                post.tags.map((tag) => (
+                  <Tag key={tag}>#{tag}</Tag>
+                ))
+              ) : (
+                <Tag>#전체</Tag> 
+              )}
           </div>
 
           {/* 액션 영역 */}
