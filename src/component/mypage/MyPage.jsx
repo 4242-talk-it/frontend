@@ -16,17 +16,21 @@ import SettingsTab from './SettingsTab';
 const MyPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { userInfo } = useSelector((state) => state.login);
+
+  // 1. Redux loginSlice의 initialState 구조에 맞춰 개별 데이터 추출
+  const { userId, email, nickname } = useSelector((state) => state.login);
+  
+  // 2. 하위 컴포넌트(SettingsTab)에 전달하기 위한 통합 유저 객체 생성
+  const currentUser = { userId, email, nickname };
 
   const [activeTab, setActiveTab] = useState('records');
-  const [newNickname, setNewNickname] = useState(userInfo?.nickname || "");
   const [showSettings, setShowSettings] = useState({
     notifications: true,
     soundAlerts: false,
     dataAnalytics: true
   });
 
-  // --- 임시 데이터 (대략적인 레이아웃 확인용) ---
+  // --- 임시 데이터 ---
   const conversationHistory = [
     {
       id: 1,
@@ -85,10 +89,11 @@ const MyPage = () => {
   ];
 
   // --- 핸들러 로직 ---
-  const handleUpdateNickname = async (nickname) => {
+  const handleUpdateNickname = async (updatedNickname) => {
     try {
-      const response = await axiosInstance.patch('/api/users/nickname', { nickname });
-      dispatch(loginSuccess({ ...userInfo, nickname: response.data.data }));
+      const response = await axiosInstance.patch('/api/users/nickname', { nickname: updatedNickname });
+      // 🚩 수정: Redux에 업데이트할 때도 userInfo 대신 개별 필드를 반영한 객체 전달
+      dispatch(loginSuccess({ userId, email, nickname: response.data.data }));
       alert("닉네임이 수정되었습니다.");
     } catch (error) {
       alert("수정 중 오류가 발생했습니다.");
@@ -97,8 +102,11 @@ const MyPage = () => {
 
   const handleLogout = async () => {
     if (window.confirm("로그아웃 하시겠습니까?")) {
-      try { await axiosInstance.post('/api/users/logout'); } 
-      finally {
+      try { 
+        await axiosInstance.post('/api/users/logout'); 
+      } catch (error) {
+        console.error("로그아웃 실패:", error);
+      } finally {
         dispatch(logout());
         navigate("/");
       }
@@ -125,10 +133,11 @@ const MyPage = () => {
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 rounded-full flex items-center justify-center text-gray-700 font-bold text-2xl shadow-sm" style={{ backgroundColor: "#A5F278" }}>
-              {userInfo?.nickname?.charAt(0) || "U"}
+              {/* 🚩 수정: userInfo?.nickname -> nickname 직접 참조 */}
+              {nickname?.charAt(0) || "U"}
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">안녕하세요, {userInfo?.nickname || "사용자"}님!</h1>
+              <h1 className="text-2xl font-bold text-gray-800">안녕하세요, {nickname || "사용자"}님!</h1>
               <p className="text-gray-600">오늘도 즐거운 대화를 나눠보세요</p>
             </div>
           </div>
@@ -144,7 +153,7 @@ const MyPage = () => {
           <TabButton icon={Settings} title="설정/계정관리" isActive={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
         </div>
 
-        {/* 탭 컨텐츠 (데이터 Props 전달) */}
+        {/* 탭 컨텐츠 */}
         <main>
           {activeTab === 'records' && (
             <RecordsTab conversationHistory={conversationHistory} />
@@ -158,11 +167,11 @@ const MyPage = () => {
           )}
           {activeTab === 'settings' && (
             <SettingsTab 
-              user={userInfo}
+              user={currentUser}
               showSettings={showSettings}
               setShowSettings={setShowSettings}
-              handleLogout={handleLogout}
               handleUpdateNickname={handleUpdateNickname}
+              handleLogout={handleLogout}
             />
           )}
         </main>

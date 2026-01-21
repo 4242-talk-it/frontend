@@ -1,45 +1,91 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axiosInstance from '../api/axiosInstance';
 
-const getInitialUserInfo = () => {
-  const savedInfo = localStorage.getItem('userInfo');
-  if (!savedInfo || savedInfo === "undefined") return null;
-  try {
-    return JSON.parse(savedInfo);
-  } catch (e) {
-    return null;
+const hasAccessToken = () => {
+  return document.cookie.split('; ').some((row) => row.startsWith('accessToken='));
+};
+
+const hasRefreshToken = () => {
+  return document.cookie.split('; ').some((row) => row.startsWith('refreshToken='));
+};
+
+export const fetchUserStatus = createAsyncThunk(
+  'login/fetchUserStatus',
+  async (_, { rejectWithValue }) => {
+    try {
+      // 🚩 axiosInstance에 { withCredentials: true } 설정이 되어 있어야 합니다.
+      const response = await axiosInstance.get('/api/auth/status');
+      return response.data; // UserResponseDto 반환
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
   }
+);
+
+const loadState = () => {
+  const isLoggedIn = localStorage.getItem('isLoggedIn');
+  return { isLoggedIn: isLoggedIn === 'true' };
 };
 
 const initialState = {
-  isLoggedIn: !!localStorage.getItem('accessToken'),
-  userInfo: getInitialUserInfo(),
-  isLoading: true, // 🚩 핵심: 초기값을 true로 설정합니다.
+  ...loadState(),
+  userId: '',
+  email: '',
+  nickname: '',
+  status: 'idle',
+  error: null,
+  isInitialized: false,
 };
 
 const loginSlice = createSlice({
   name: 'login',
   initialState,
+  
   reducers: {
     loginSuccess: (state, action) => {
+      state.userId = action.payload.userId;
+      state.email = action.payload.email;
+      state.nickname = action.payload.nickname;
       state.isLoggedIn = true;
-      state.userInfo = action.payload;
-      state.isLoading = false; // 🚩 로딩 완료
-      if (action.payload) {
-        localStorage.setItem('userInfo', JSON.stringify(action.payload));
-      }
+      state.status = 'succeeded';
+      state.isInitialized = true;
+      localStorage.setItem('isLoggedIn', 'true');
     },
     logout: (state) => {
+      state.userId = '';
+      state.email = '';
+      state.nickname = '';
       state.isLoggedIn = false;
-      state.userInfo = null;
-      state.isLoading = false; // 🚩 로딩 완료
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('userInfo');
+      state.status = 'idle';
+      state.error = null;
+      state.isInitialized = true;
+      localStorage.removeItem('isLoggedIn');
     },
-    setLoading: (state, action) => { // 🚩 수동 로딩 제어용
-      state.isLoading = action.payload;
-    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchUserStatus.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(fetchUserStatus.fulfilled, (state, action) => {
+        state.userId = action.payload.userId;
+        state.email = action.payload.email;
+        state.nickname = action.payload.nickname;
+        state.isLoggedIn = true;
+        state.status = 'succeeded';
+        state.isInitialized = true;
+        localStorage.setItem('isLoggedIn', 'true');
+      })
+      .addCase(fetchUserStatus.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+        state.isInitialized = true;
+        state.isLoggedIn = false;
+        localStorage.removeItem('isLoggedIn');
+      });
   },
 });
 
-export const { loginSuccess, logout, setLoading } = loginSlice.actions;
+export const { loginSuccess, logout } = loginSlice.actions;
 export default loginSlice.reducer;

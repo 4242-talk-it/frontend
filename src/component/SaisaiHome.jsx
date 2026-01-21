@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import axiosInstance from "../api/axiosInstance";
 import { Home, MessageCircle, BarChart3, User, Play, Search, Bell, Award, Calendar, Sparkles } from 'lucide-react';
 
@@ -7,26 +8,26 @@ const SaisaiHome = () => {
   const [selectedMood, setSelectedMood] = useState(null);
   const [completedGoals, setCompletedGoals] = useState([true, false, false]);
   const [timeOfDay, setTimeOfDay] = useState('');
+  const { isLoggedIn } = useSelector((state) => state.login);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await axiosInstance.get('/api/stats/recent');
-        console.log("받아온 데이터: ",response.data)
-        setRecentStats(response.data);
-      } catch (error) {
-        console.error("데이터 로딩 실패:", error);
-      }
+    if (isLoggedIn) {
+      const fetchStats = async () => {
+        try {
+          const response = await axiosInstance.get('/api/stats/recent');
+          setRecentStats(response.data);
+        } catch (error) {
+          console.error("통계 로딩 실패:", error);
+        }
+      };
+      fetchStats();
     };
-
-    fetchStats();
-
     //시간 설정 로직
     const hour = new Date().getHours();
     if (hour < 12) setTimeOfDay('아침');
     else if (hour < 18) setTimeOfDay('오후');
     else setTimeOfDay('저녁');
-  }, []);
+  }, [isLoggedIn]);
 
   const todaysKeywords = [
     { keyword: '날씨', color: 'bg-blue-200', emoji: '☀️', completed: true },

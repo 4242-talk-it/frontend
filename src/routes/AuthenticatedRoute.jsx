@@ -1,26 +1,23 @@
-import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 
 const AuthenticatedRoute = ({ children }) => {
-  const { isLoggedIn, isLoading } = useSelector((state) => state.login);
-  const location = useLocation();
+  // 🚩 수정: 전체 객체를 새로 만들지 말고, 초기 상태를 구조 분해 할당으로 가져옵니다.
+  const loginState = useSelector((state) => state.login); // store.js의 reducer 키 이름 확인 (login 또는 loginSlice)
+  const { isLoggedIn, isInitialized } = loginState || { isLoggedIn: false, isInitialized: false };
 
-  useEffect(() => {
-    // 현재 주소가 루트('/')가 아닐 때만 로그인이 필요하다는 알림을 띄웁니다.
-    if (!isLoading && !isLoggedIn && location.pathname !== "/") {
-      alert("로그인이 필요한 페이지입니다.");
-    }
-  }, [isLoading, isLoggedIn, location.pathname]);
-
-  if (isLoading) return <div>로딩 중...</div>;
+  if (!isInitialized) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-white">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+        <p className="ml-4 font-medium">사용자 확인 중...</p>
+      </div>
+    );
+  }
 
   if (!isLoggedIn) {
-    // 🚩 핵심: 현재 주소가 루트('/')라면 리다이렉트하지 않고 null을 반환하여 멈춥니다.
-    if (location.pathname === "/") return null;
-    
-    // 그 외의 보호된 페이지(home, mypage 등)라면 로그인으로 보냅니다.
-    return <Navigate to="/login" replace />;
+    // 🚩 로그인이 안 되어 있으면 미인증 안내 페이지로 리다이렉트
+    return <Navigate to="/unauthenticated" replace />;
   }
 
   return children;

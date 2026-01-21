@@ -9,7 +9,8 @@ const Header = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   
-  const { isLoggedIn, userInfo } = useSelector((state) => state.login);
+  // 🚩 수정: userInfo 대신 리덕스 스토어에서 nickname을 직접 가져옵니다.
+  const { isLoggedIn, nickname } = useSelector((state) => state.login);
   const [isCompact, setIsCompact] = useState(false);
   const currentPath = location.pathname;
 
@@ -23,7 +24,8 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const userName = userInfo?.nickname || "사용자";
+  // 🚩 수정: 가져온 nickname 변수를 사용합니다.
+  const userName = nickname || "사용자";
   const firstLetter = userName.charAt(0);
   
   const isActive = (p) => currentPath === p;
@@ -62,14 +64,14 @@ const Header = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
         
-        {/* LOGO: 경로 및 로그인 상태에 따른 동적 버튼 */}
+        {/* LOGO */}
         <button 
           onClick={handleLogoClick} 
           disabled={currentPath === "/"}
           className={`flex items-center gap-2 group transition-all ${
             currentPath === "/" 
-              ? "cursor-default opacity-100" // 랜딩페이지일 때
-              : "cursor-pointer active:scale-95 hover:opacity-80" // 그 외 페이지일 때
+              ? "cursor-default opacity-100" 
+              : "cursor-pointer active:scale-95 hover:opacity-80" 
           }`}
         >
           <div className="flex gap-1">
@@ -109,6 +111,7 @@ const Header = () => {
                 <div className="w-9 h-9 rounded-full flex items-center justify-center text-gray-700 font-bold shadow-sm" style={{ backgroundColor: "#A5F278" }}>
                   {firstLetter}
                 </div>
+                {/* 🚩 닉네임이 잘 나옵니다 */}
                 <span className="text-gray-700 font-medium hidden sm:inline">{userName}님</span>
               </button>
               <button

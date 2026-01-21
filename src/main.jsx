@@ -1,13 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App.jsx';
 import { Provider } from 'react-redux';
 import store from './store';
-import { RouterProvider } from 'react-router-dom';
-import router from './routes/Router';
-import './index.css';
+import { initializeStore } from './api/axiosInstance';
+import { logout } from './slices/loginSlice';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+// store 초기화
+initializeStore(store, logout);
+
+const root = document.getElementById('root');
+
+ReactDOM.createRoot(root).render(
   <Provider store={store}>
-    <RouterProvider router={router} />
-  </Provider>
+    <App />
+  </Provider>,
 );
