@@ -51,7 +51,7 @@ const CommunityListPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 relative pb-20">
 
-      {/* Hero Section - 기존 디자인 복구 */}
+      {/* Hero Section */}
       <div className="bg-gradient-to-b from-purple-50 to-white py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex justify-center mb-4">
@@ -77,7 +77,7 @@ const CommunityListPage = () => {
         </div>
       </div>
 
-      {/* Categories Bar - 기존 이모지 및 스티키 스타일 복구 */}
+      {/* Categories Bar */}
       <div className="bg-white border-b sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-4 py-4">
@@ -134,52 +134,74 @@ const CommunityListPage = () => {
             : "max-w-4xl mx-auto space-y-4"
           }>
             {filteredPosts.map((post) => (
-              <div
-                key={post.id}
-                onClick={() => navigate(`/community/detail/${post.id}`)}
-                className={`bg-white shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 hover:border-green-200 group
-                  ${viewMode === 'grid' ? 'rounded-2xl p-6' : 'rounded-xl p-5 flex gap-4'}`}
-              >
-                {/* 리스트형일 때 아바타 배치 조절 */}
-                <div className={viewMode === 'list' ? 'flex-shrink-0' : 'mb-4'}>
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-400 rounded-full flex items-center justify-center">
-                    <User className="w-5 h-5 text-white" />
-                  </div>
+            <div
+              key={post.id}
+              onClick={() => navigate(`/community/detail/${post.id}`)}
+              className={`bg-white shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 hover:border-green-200 group
+                ${viewMode === 'grid' ? 'rounded-2xl p-6' : 'rounded-xl p-5 flex gap-4'}`}
+            >
+              {/* 1. 아바타 & 닉네임 (상단 배치) */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-400 rounded-full flex items-center justify-center shadow-sm">
+                  <User className="w-5 h-5 text-white" />
                 </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="font-medium text-gray-800 text-sm">{post.nickname || '익명'}</span>
-                    <span className="text-xs text-gray-400">{post.createdAt?.split('T')[0]}</span>
-                  </div>
-
-                  <div className="mb-3">
-                    <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-medium">
-                      {post.category}
-                    </span>
-                  </div>
-
-                  <h3 className="font-bold text-gray-800 mb-2 text-lg line-clamp-1 group-hover:text-green-600 transition-colors">
-                    {post.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
-                    {post.content}
-                  </p>
-
-                  <div className="flex items-center gap-4 text-sm text-gray-500 pt-4 border-t">
-                    <div className="flex items-center gap-1">
-                      <Heart size={16} className={post.isLiked ? "fill-red-500 text-red-500" : ""} />
-                      <span>{post.likeCount}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MessageCircle size={16} />
-                      <span>{post.commentCount}</span>
-                    </div>
-                    <div className="ml-auto text-xs">조회 {post.viewCount || 0}</div>
-                  </div>
+                <div className="flex flex-col ml-0.5">
+                  {/* 닉네임: 15px로 미세 조정 및 semibold 적용 */}
+                  <span className="font-semibold text-gray-800 text-[15px] leading-tight">
+                    {post.nickname || '익명'}
+                  </span>
+                  {/* 날짜: 닉네임과 밸런스를 맞추기 위해 mt-1 추가 */}
+                  <span className="text-[11px] text-gray-400 mt-1">
+                    {post.createdAt?.split('T')[0]}
+                  </span>
                 </div>
               </div>
-            ))}
+
+              <div className="flex-1 min-w-0">
+                {/* 2. 카테고리 배치: mb-3으로 늘려 제목과의 간격 확보 */}
+                <div className="mb-3">
+                  <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm font-bold border border-blue-100 shadow-sm">
+                    {post.category}
+                  </span>
+                </div>
+
+                {/* 3. 제목: 위아래 여백 최적화 */}
+                <h3 className="font-bold text-gray-800 mb-2 text-lg line-clamp-1 group-hover:text-green-600 transition-colors">
+                  {post.title}
+                </h3>
+                
+                {/* 4. 내용 */}
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+                  {post.content}
+                </p>
+
+                {/* 5. 태그 영역 */}
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {post.tags?.map((tag, idx) => (
+                    <span
+                      key={idx} 
+                      className="px-2 py-0.5 bg-green-50 text-green-600 border border-green-200 rounded-md text-[11px] font-medium"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+
+                {/* 6. 하단 액션바 (조회수 포함) */}
+                <div className="flex items-center gap-4 text-sm text-gray-500 pt-4 border-t border-gray-50">
+                  <div className="flex items-center gap-1">
+                    <Heart size={16} className={post.isLiked ? "fill-red-500 text-red-500" : ""} />
+                    <span>{post.likeCount}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MessageCircle size={16} />
+                    <span>{post.commentCount}</span>
+                  </div>
+                  <div className="ml-auto text-[11px] text-gray-400">조회 {post.viewCount || 0}</div>
+                </div>
+              </div>
+            </div>
+          ))}
           </div>
         ) : (
           <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-gray-200">
@@ -207,7 +229,7 @@ const CommunityListPage = () => {
           )}
           
         </div>
-</aside>
+      </aside>
     </div>
   );
 };
