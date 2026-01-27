@@ -47,7 +47,11 @@ const Login = () => {
         const serverMsg = error.response.data?.message;
         if (serverMsg === "사용자를 찾을 수 없습니다.") {
           alert("이메일 또는 비밀번호가 일치하지 않습니다.");
-        } else {
+        } else if (serverMsg === "회원탈퇴 요청이 된 사용자입니다.") {
+          if (window.confirm("회원 탈퇴 요청이 된 계정입니다. 지금 복구하여 다시 로그인하시겠습니까?")) {
+            handleRestoreAccount(formData.email);
+          }
+        }else {
           alert(serverMsg || "로그인 정보를 확인해주세요.");
         }
       } else {
@@ -57,6 +61,17 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
+  const handleRestoreAccount = async (email) => {
+  try {
+    await axiosInstance.patch('/api/users/restore', { email });
+    alert("계정이 복구되었습니다. 다시 로그인해주세요.");
+    // 이메일은 남겨두고 비밀번호만 다시 입력하도록 유도
+    setFormData(prev => ({ ...prev, password: '' }));
+  } catch (error) {
+    alert(error.response?.data?.message || "계정 복구 중 오류가 발생했습니다.");
+  }
+};
 
   const handleSocialLogin = (provider) => {
     alert(`${provider} 로그인 연동 준비중입니다!`);
