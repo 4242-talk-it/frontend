@@ -1,397 +1,227 @@
-import React, { useState } from "react";
-import { MessageCircle, RotateCcw, HelpCircle, Send } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { MessageCircle, RotateCcw, HelpCircle, Send, History } from "lucide-react";
+import axios from "../api/axiosInstance";
 
 const AICoachChat = () => {
   const [showChat, setShowChat] = useState(true);
   const [showHelp, setShowHelp] = useState(false);
   const [inputText, setInputText] = useState("");
-  //const [selectedSituation, setSelectedSituation] = useState(1);
-  const [messages, setMessages] = useState([
-    {
-      type: "system",
-      text: "연습 시작!",
-    },
-    {
-      type: "notice",
-      text: "안녕하세요! AI 코치와 함께 대화를 연습해보세요. 선택하신 '첫 만남 & 소개' 상황으로 시작하겠습니다. 자연스럽게 대화해보세요! 👍",
-    },
-    {
-      type: "ai",
-      text: "안녕하세요! 처음 뵙겠습니다. 혹시 여기 처음 오시는 건가요?",
-      time: "15:30",
-    },
-  ]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const situations = [
-    {
-      id: 1,
-      icon: "👋",
-      title: "첫 만남 & 소개",
-      description: "처음 만나는 사람과 스스로 대화",
-      status: "쉬움",
-      statusColor: "text-green-500 bg-green-50",
-    },
-    {
-      id: 2,
-      icon: "💬",
-      title: "갈등 상황 대화",
-      description: "의견이 다를 때 원만하게 해결하기",
-      status: "보통",
-      statusColor: "text-orange-500 bg-orange-50",
-    },
-    {
-      id: 3,
-      icon: "🤔",
-      title: "위로와 공감",
-      description: "상대방의 마음을 이해하고 위로하기",
-      status: "보통",
-      statusColor: "text-orange-500 bg-orange-50",
-    },
-    {
-      id: 4,
-      icon: "😊",
-      title: "칭찬과 격려",
-      description: "기쁜 소식이나 성취를 함께 기뻐하기",
-      status: "쉬움",
-      statusColor: "text-green-500 bg-green-50",
-    },
-    {
-      id: 5,
-      icon: "💭",
-      title: "업무 협의",
-      description: "직장에서의 원활한 소통 연습",
-      status: "어려움",
-      statusColor: "text-red-500 bg-red-50",
-    },
-  ];
+  // API 연동을 위한 상태 관리
+  const [situations, setSituations] = useState([]); // 상황 목록
+  const [myRooms, setMyRooms] = useState([]); // 이전 대화 기록 목록
+  const [currentRoomId, setCurrentRoomId] = useState(null); // 현재 활성화된 방 ID
+  const [messages, setMessages] = useState([]); // 현재 화면의 메시지들
 
-  const handleSendMessage = () => {
-    if (inputText.trim()) {
-      setMessages([
-        ...messages,
-        {
-          type: "user",
-          text: inputText,
-          time: new Date().toLocaleTimeString("ko-KR", {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        },
-      ]);
-      setInputText("");
-
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            type: "ai",
-            text: "좋은 대답이에요! 자연스럽게 대화를 이어가고 계시네요.",
-            time: new Date().toLocaleTimeString("ko-KR", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-          },
+  // 1. 초기 로딩: 상황 목록 및 이전 대화 기록 가져오기
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const [sitRes, roomRes] = await Promise.all([
+          axios.get("/api/ai-situation"),
+          axios.get("/api/ai-chat/my-rooms")
         ]);
-      }, 1000);
+        setSituations(sitRes.data.data);
+        setMyRooms(roomRes.data.data);
+      } catch (error) {
+        console.error("데이터 로드 실패:", error);
+      }
+    };
+    fetchInitialData();
+  }, []);
+
+  // 2. 새 채팅방 생성 (상황 선택 시)
+  const handleSelectSituation = async (situationId) => {
+    try {
+      const response = await axios.post("/api/ai-chat/room", { situationId });
+      const newRoom = response.data.data;
+      
+      setCurrentRoomId(newRoom.chatRoomId);
+      // 새 방이므로 기본 공지 메시지만 세팅
+      setMessages([
+        { type: "NOTICE", content: `안녕하세요! '${newRoom.situationTitle}' 연습을 시작합니다. 👍` }
+      ]);
+      // 목록 새로고침 (방이 새로 생겼으므로)
+      const roomRes = await axios.get("/api/ai-chat/my-rooms");
+      setMyRooms(roomRes.data.data);
+    } catch (error) {
+      alert("채팅방 생성에 실패했습니다.");
+    }
+  };
+
+  // 3. 이전 대화 기록 불러오기 (기록 클릭 시)
+  const handleLoadPastRoom = (room) => {
+    setCurrentRoomId(room.chatRoomId);
+    setMessages(room.messages); // DTO에 포함된 이전 메시지들로 즉시 교체
+    setShowChat(true);
+  };
+
+  // 4. 메시지 전송 및 AI 답변 받기
+  const handleSendMessage = async () => {
+    if (!inputText.trim() || !currentRoomId || isLoading) return;
+
+    const userMsg = { type: "USER", content: inputText, createdAt: new Date().toISOString() };
+    setMessages((prev) => [...prev, userMsg]);
+    setInputText("");
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post(`/api/ai-chat/message/${currentRoomId}`, {
+        message: inputText
+      });
+      const aiAnswer = response.data.data;
+      setMessages((prev) => [...prev, { type: "AI", content: aiAnswer, createdAt: new Date().toISOString() }]);
+    } catch (error) {
+      console.error("메시지 전송 실패:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleReset = () => {
-    if (window.confirm("채팅을 초기화하시겠습니까?")) {
-      setMessages([
-        {
-          type: "system",
-          text: "연습 시작!",
-        },
-        {
-          type: "ai",
-          text: "안녕하세요! AI 코치와 함께 대화를 연습해보세요. 선택하신 '첫 만남 & 소개' 상황으로 시작하겠습니다. 자연스럽게 대화해보세요! 👍",
-        },
-        {
-          type: "ai",
-          text: "안녕하세요! 처음 뵙겠습니다. 혹시 여기 처음 오시는 건가요?",
-          time: "15:30",
-        },
-      ]);
+    if (window.confirm("현재 채팅을 초기화하시겠습니까? (방 ID는 유지됩니다)")) {
+        setMessages(prev => [prev[0]]); // 첫 공지 메시지만 남김
     }
   };
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Left Sidebar */}
+      {/* 왼쪽 사이드바 */}
       <div className="w-80 bg-white border-r flex flex-col">
-        {/* Header - Fixed */}
         <div className="p-6 border-b">
           <h2 className="text-xl font-bold text-gray-800 mb-2">AI 말연습장</h2>
           <p className="text-sm text-blue-500 mb-4">부담 없이 연습해보세요</p>
-          <button className="w-full bg-gradient-to-r from-primary to-secondary text-black py-2.5 rounded-lg font-medium hover:from-green-400 hover:to-blue-400 transition-all">
+          <button className="w-full bg-gradient-to-r from-green-400 to-blue-400 text-white py-2.5 rounded-lg font-medium">
             무제한 연습 가능
           </button>
         </div>
 
-        {/* Scrollable Situations */}
+        {/* 상황 선택 & 이전 기록 스크롤 영역 */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6">
             <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="text-lg">💡</span>
-              상황 선택
+              <span className="text-lg">💡</span> 상황 선택
             </h3>
-            <div className="space-y-3">
-              {situations.map((situation) => (
+            <div className="space-y-3 mb-8">
+              {situations.map((sit) => (
                 <div
-                  key={situation.id}
-                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    situation.id === 1
-                      ? "border-green-400 bg-green-50"
-                      : "border-gray-200 bg-white hover:border-green-300"
+                  key={sit.id}
+                  onClick={() => handleSelectSituation(sit.id)}
+                  className="p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 cursor-pointer transition-all"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-2xl">{sit.icon}</span>
+                    <h4 className="font-bold text-gray-800">{sit.title}</h4>
+                  </div>
+                  <p className="text-sm text-gray-600">{sit.description}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* 이전 기록 섹션 추가 */}
+            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <History className="w-5 h-5 text-purple-500" /> 이전 대화 기록
+            </h3>
+            <div className="space-y-2">
+              {myRooms.map((room) => (
+                <div
+                  key={room.chatRoomId}
+                  onClick={() => handleLoadPastRoom(room)}
+                  className={`p-3 rounded-lg border cursor-pointer hover:bg-gray-50 transition-all ${
+                    currentRoomId === room.chatRoomId ? "border-purple-400 bg-purple-50" : "border-gray-100 bg-white"
                   }`}
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{situation.icon}</span>
-                      <h4 className="font-bold text-gray-800">
-                        {situation.title}
-                      </h4>
-                    </div>
-                    {situation.id === 1 && (
-                      <span className="text-green-500 text-xl">✓</span>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-600 mb-2">
-                    {situation.description}
+                  <p className="font-bold text-xs text-purple-600 mb-1">{room.situationTitle}</p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {room.messages[room.messages.length - 1]?.content || "대화 내용 없음"}
                   </p>
-                  <span
-                    className={`text-xs font-medium px-2 py-1 rounded ${situation.statusColor}`}
-                  >
-                    {situation.status}
-                  </span>
                 </div>
               ))}
             </div>
           </div>
         </div>
-
-        {/* AI Coach Status - Fixed */}
-        <div className="p-6 border-t bg-purple-50">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-2xl">🤖</span>
-            <div>
-              <h4 className="font-bold text-gray-800">AI 코치 상태</h4>
-              <p className="text-sm text-gray-600">실시간 피드백 제공 중</p>
-            </div>
-          </div>
-        </div>
       </div>
 
-      {/* Right Chat Area */}
+      {/* 오른쪽 채팅 영역 */}
       <div className="flex-1 flex flex-col">
-        {/* Top Header */}
+        {/* 상단 헤더 */}
         <div className="bg-white border-b px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-400 rounded-full flex items-center justify-center">
-              <span className="text-white text-lg font-bold">AI</span>
-            </div>
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-400 rounded-full flex items-center justify-center text-white font-bold">AI</div>
             <div>
               <h3 className="font-bold text-gray-800">사이사이 AI 코치</h3>
               <p className="text-sm text-blue-500">연습 도우미 활성화</p>
             </div>
           </div>
-
-          {/* Action Buttons */}
           <div className="flex items-center gap-3">
-            <div className="relative group">
-              <button
-                onClick={() => setShowChat(!showChat)}
-                className="p-3 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-all"
-              >
-                <MessageCircle className="w-5 h-5" />
-              </button>
-              <div className="absolute top-full mt-2 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                채팅화면
-              </div>
-            </div>
-
-            <div className="relative group">
-              <button
-                onClick={handleReset}
-                className="p-3 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all"
-              >
-                <RotateCcw className="w-5 h-5" />
-              </button>
-              <div className="absolute top-full mt-2 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                초기화
-              </div>
-            </div>
-
-            <div className="relative group">
-              <button
-                onClick={() => setShowHelp(true)}
-                className="p-3 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-all"
-              >
-                <HelpCircle className="w-5 h-5" />
-              </button>
-              <div className="absolute top-full mt-2 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                도움말
-              </div>
-            </div>
+            <button onClick={() => setShowChat(!showChat)} className="p-3 rounded-full bg-blue-100 text-blue-600"><MessageCircle className="w-5 h-5" /></button>
+            <button onClick={handleReset} className="p-3 rounded-full bg-gray-100 text-gray-600"><RotateCcw className="w-5 h-5" /></button>
+            <button onClick={() => setShowHelp(true)} className="p-3 rounded-full bg-red-100 text-red-600"><HelpCircle className="w-5 h-5" /></button>
           </div>
         </div>
 
-        {/* Chat Messages */}
-        {showChat && (
-          <>
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {messages.map((msg, idx) => (
-                <div key={idx}>
-                  {msg.type === "system" && (
-                    <div className="flex justify-center mb-6">
-                      <div className="bg-yellow-50 border border-yellow-200 px-4 py-2 rounded-full flex items-center gap-2">
-                        <span className="text-yellow-600">👍</span>
-                        <span className="text-sm font-medium text-yellow-700">
-                          {msg.text}
-                        </span>
+        {/* 메시지 영역 */}
+        {showChat ? (
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`flex ${msg.type === "USER" ? "justify-end" : "justify-start"}`}>
+                {msg.type === "NOTICE" ? (
+                  <div className="bg-yellow-50 border border-yellow-200 px-4 py-2 rounded-full text-sm mx-auto text-yellow-700">
+                    👍 {msg.content}
+                  </div>
+                ) : (
+                  <div className={`flex gap-3 ${msg.type === "USER" ? "flex-row-reverse" : ""}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${msg.type === "AI" ? "bg-gradient-to-br from-purple-400 to-blue-400" : "bg-green-400"}`}>
+                      <span className="text-white font-bold text-xs">{msg.type === "AI" ? "AI" : "나"}</span>
+                    </div>
+                    <div>
+                      <div className={`px-4 py-3 rounded-2xl shadow-sm max-w-md ${msg.type === "USER" ? "bg-green-400 text-white rounded-tr-sm" : "bg-white text-gray-800 rounded-tl-sm"}`}>
+                        {msg.content}
                       </div>
                     </div>
-                  )}
-                  {msg.type === "ai" && (
-                    <div className="flex gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-blue-400 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-bold">AI</span>
-                      </div>
-                      <div>
-                        <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm max-w-md">
-                          <p className="text-gray-800">{msg.text}</p>
-                        </div>
-                        {msg.time && (
-                          <p className="text-xs text-gray-400 mt-1 ml-2">
-                            {msg.time}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  {msg.type === "user" && (
-                    <div className="flex justify-end">
-                      <div>
-                        <div className="bg-green-400 rounded-2xl rounded-tr-sm px-4 py-3 shadow-sm max-w-md">
-                          <p className="text-white">{msg.text}</p>
-                        </div>
-                        {msg.time && (
-                          <p className="text-xs text-gray-400 mt-1 mr-2 text-right">
-                            {msg.time}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* Suggestion Chips */}
-            <div className="px-6 py-3 bg-gray-50 border-t">
-              <div className="flex flex-wrap gap-2">
-                <button className="flex items-center gap-1 px-3 py-2 bg-white rounded-full text-sm text-gray-700 hover:bg-gray-100 transition-all border">
-                  <span className="text-green-500">✓</span>
-                  자연스러운 대화 중이예요!
-                </button>
-                <button className="flex items-center gap-1 px-3 py-2 bg-white rounded-full text-sm text-gray-700 hover:bg-gray-100 transition-all border">
-                  <span className="text-orange-500">👍</span>
-                  구체적으로 표현해보세요
-                </button>
-                <button className="flex items-center gap-1 px-3 py-2 bg-white rounded-full text-sm text-gray-700 hover:bg-gray-100 transition-all border">
-                  <span className="text-blue-500">🎯</span>
-                  상대방에게 관심 보이기
-                </button>
+                  </div>
+                )}
               </div>
-            </div>
-
-            {/* Input Area */}
-            <div className="p-6 bg-white border-t">
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                  placeholder="지연스럽게 대화해보세요. 예: '맞아요! 여기 처음이라 조금 떨리네요...'"
-                  className="flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-                />
-                <button
-                  onClick={handleSendMessage}
-                  className="px-6 py-3 bg-green-400 text-white rounded-lg hover:bg-green-500 transition-all flex items-center gap-2"
-                >
-                  <Send className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-
-        {!showChat && (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">
-                채팅화면 버튼을 눌러 대화를 시작하세요
-              </p>
-            </div>
+            ))}
+            {isLoading && <div className="text-center text-xs text-gray-400 animate-pulse">AI 코치가 생각 중입니다...</div>}
           </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-gray-400">채팅화면 버튼을 눌러주세요</div>
         )}
-      </div>
 
-      {/* Help Modal */}
-      {showHelp && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-xl">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-800">💡 도움말</h2>
-              <button
-                onClick={() => setShowHelp(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <h3 className="font-bold text-blue-800 mb-2">💬 채팅화면</h3>
-                <p className="text-sm text-blue-700">
-                  현재 대화 화면을 표시하거나 숨깁니다.
-                </p>
-              </div>
-
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-bold text-gray-800 mb-2">🔄 초기화</h3>
-                <p className="text-sm text-gray-700">
-                  현재 대화를 초기화하고 새로 시작합니다.
-                </p>
-              </div>
-
-              <div className="p-4 bg-purple-50 rounded-lg">
-                <h3 className="font-bold text-purple-800 mb-2">📝 상황 선택</h3>
-                <p className="text-sm text-purple-700">
-                  왼쪽에서 연습하고 싶은 대화 상황을 선택하세요.
-                </p>
-              </div>
-
-              <div className="p-4 bg-green-50 rounded-lg">
-                <h3 className="font-bold text-green-800 mb-2">🤖 AI 코치</h3>
-                <p className="text-sm text-green-700">
-                  실시간으로 대화 피드백을 제공합니다.
-                </p>
-              </div>
-            </div>
-
+        {/* 입력 영역 */}
+        <div className="p-6 bg-white border-t">
+          <div className="flex gap-3">
+            <input
+              type="text"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+              disabled={!currentRoomId || isLoading}
+              placeholder={currentRoomId ? "메시지를 입력해보세요..." : "상황을 선택하거나 이전 기록을 클릭하세요."}
+              className="flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-400 outline-none"
+            />
             <button
-              onClick={() => setShowHelp(false)}
-              className="w-full mt-6 bg-gradient-to-r from-green-400 to-blue-400 text-white py-3 rounded-lg font-medium hover:from-green-500 hover:to-blue-500 transition-all"
+              onClick={handleSendMessage}
+              disabled={!currentRoomId || isLoading}
+              className="px-6 py-3 bg-green-400 text-white rounded-lg hover:bg-green-500 transition-all"
             >
-              확인
+              <Send className="w-5 h-5" />
             </button>
           </div>
         </div>
+      </div>
+      
+      {/* 도움말 모달 (showHelp 상태에 따라 렌더링 - 기존 UI 유지) */}
+      {showHelp && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-2xl p-8 max-w-md w-full">
+                  <h2 className="text-xl font-bold mb-4">💡 도움말</h2>
+                  <p className="text-gray-600 mb-6 text-sm leading-relaxed">상황을 선택하면 대화 연습을 시작할 수 있습니다. AI 코치가 실시간으로 여러분의 대화를 도와드립니다.</p>
+                  <button onClick={() => setShowHelp(false)} className="w-full bg-green-400 text-white py-3 rounded-lg font-bold">확인</button>
+              </div>
+          </div>
       )}
     </div>
   );

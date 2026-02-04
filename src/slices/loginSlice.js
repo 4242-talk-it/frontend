@@ -13,11 +13,11 @@ export const fetchUserStatus = createAsyncThunk(
   'login/fetchUserStatus',
   async (_, { rejectWithValue }) => {
     try {
-      // 🚩 axiosInstance에 { withCredentials: true } 설정이 되어 있어야 합니다.
       const response = await axiosInstance.get('/api/auth/status');
-      return response.data; // UserResponseDto 반환
+      
+      return response.data.data || response.data; 
     } catch (error) {
-      return rejectWithValue(error.response?.data);
+      return rejectWithValue(error.response?.data || 'Logged out status');
     }
   }
 );
