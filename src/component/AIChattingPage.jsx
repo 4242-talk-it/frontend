@@ -9,12 +9,11 @@ const AICoachChat = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // API 연동을 위한 상태 관리
-  const [situations, setSituations] = useState([]); // 상황 목록
-  const [myRooms, setMyRooms] = useState([]); // 이전 대화 기록 목록
-  const [currentRoomId, setCurrentRoomId] = useState(null); // 현재 활성화된 방 ID
-  const [messages, setMessages] = useState([]); // 현재 화면의 메시지들
+  const [situations, setSituations] = useState([]);
+  const [myRooms, setMyRooms] = useState([]);
+  const [currentRoomId, setCurrentRoomId] = useState(null);
+  const [messages, setMessages] = useState([]);
 
-  // 1. 초기 로딩: 상황 목록 및 이전 대화 기록 가져오기
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -38,11 +37,9 @@ const AICoachChat = () => {
       const newRoom = response.data.data;
       
       setCurrentRoomId(newRoom.chatRoomId);
-      // 새 방이므로 기본 공지 메시지만 세팅
       setMessages([
         { type: "NOTICE", content: `안녕하세요! '${newRoom.situationTitle}' 연습을 시작합니다. 👍` }
       ]);
-      // 목록 새로고침 (방이 새로 생겼으므로)
       const roomRes = await axios.get("/api/ai-chat/my-rooms");
       setMyRooms(roomRes.data.data);
     } catch (error) {
@@ -53,7 +50,7 @@ const AICoachChat = () => {
   // 3. 이전 대화 기록 불러오기 (기록 클릭 시)
   const handleLoadPastRoom = (room) => {
     setCurrentRoomId(room.chatRoomId);
-    setMessages(room.messages); // DTO에 포함된 이전 메시지들로 즉시 교체
+    setMessages(room.messages);
     setShowChat(true);
   };
 
@@ -81,7 +78,7 @@ const AICoachChat = () => {
 
   const handleReset = () => {
     if (window.confirm("현재 채팅을 초기화하시겠습니까? (방 ID는 유지됩니다)")) {
-        setMessages(prev => [prev[0]]); // 첫 공지 메시지만 남김
+        setMessages(prev => [prev[0]]);
     }
   };
 

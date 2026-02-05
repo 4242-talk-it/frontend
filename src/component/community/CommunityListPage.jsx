@@ -22,14 +22,13 @@ const CommunityListPage = () => {
       const response = await axiosInstance.get('/api/community/list', {
         params: { 
           pageNo: 0,
-          pageSize: 10, // 0 대신 10 정도로 설정하는 것이 안전합니다 📋
+          pageSize: 10,
           searchType: condition?.searchType || 'TITLE',
           keyword: condition?.keyword || ''
         }
       });
 
       if (response.data && response.data.data) {
-        // 백엔드 응답 구조인 data.content를 posts에 담아줍니다 📦
         setPosts(response.data.data.content || []);
       }
     } catch (error) {
@@ -39,7 +38,6 @@ const CommunityListPage = () => {
     }
   }, []);
 
-  // 검색 버튼 눌렀을 때 실행될 함수
   const handleSearchSubmit = (newCondition) => {
     setSearchCondition(newCondition);
     fetchCommunityPosts(newCondition);
@@ -53,7 +51,6 @@ const CommunityListPage = () => {
   }, [fetchCommunityPosts, searchCondition]);
   const categories = ['전체', '대화후기', '일상공유', '질문하기', '꿀팁공유', '감사인사'];
   
-  // 2. 필터링 로직
   const filteredPosts = posts.filter(post => {
     if (selectedCategory === '전체') return true;
     if (selectedCategory === '인기글') return post.likeCount >= 20;
@@ -63,7 +60,7 @@ const CommunityListPage = () => {
 return (
     <div className="min-h-screen bg-gray-50 relative pb-20">
 
-      {/* 1. Hero Section: 배경과 검색바를 하나로 묶음 🏠 */}
+      {/* Hero Section */}
       <div className="bg-gradient-to-b from-purple-50 to-white pt-12 sm:pt-16 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex justify-center mb-4">
@@ -88,14 +85,14 @@ return (
             </div>
           </div>
 
-          {/* 🔍 검색바: Hero Section 내부 하단 배치 */}
+          {/* 검색바: Hero Section 내부 하단 배치 */}
           <div className="relative z-50">
             <CommunitySearchBar onSearch={handleSearchSubmit} />
           </div>
         </div>
       </div>
 
-      {/* 2. Categories Bar: 스티키 메뉴 📍 */}
+      {/* Categories Bar: 스티키 메뉴 */}
       <div className="bg-white border-b sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-4 py-4">
@@ -139,7 +136,7 @@ return (
         </div>
       </div>
 
-      {/* 3. Posts Area: 게시글 목록 📋 */}
+      {/* Posts Area: 게시글 목록 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
@@ -214,7 +211,7 @@ return (
         )}
       </div>
 
-      {/* 4. Floating Buttons: 화면 우하단 고정 버튼 👆 */}
+      {/* Floating Buttons: 화면 우하단 고정 버튼 */}
       <aside className="fixed z-50 bottom-12 right-8 sm:bottom-16 sm:right-10 md:bottom-20 md:right-12 lg:bottom-[150px] lg:right-[5%] xl:right-[8%]">
         <div className="flex flex-col gap-5 items-center">
           <CreateButton onClick={() => navigate('/community/create')} />

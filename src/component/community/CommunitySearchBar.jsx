@@ -4,11 +4,10 @@ import { Search, ChevronDown } from 'lucide-react';
 const CommunitySearchBar = ({ onSearch }) => {
   const [searchType, setSearchType] = useState('');
   const [keyword, setKeyword] = useState('');
-  const [isOpen, setIsOpen] = useState(false); // 드롭다운 열림 상태
-  const dropdownRef = useRef(null); // 외부 클릭 감지를 위한 ref
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  // 드롭다운 옵션 목록
-  const options = [
+  const typeOptions = [
     { value: '', label: '전체' },
     { value: 'TITLE', label: '제목' },
     { value: 'CONTENT', label: '내용' },
@@ -16,13 +15,11 @@ const CommunitySearchBar = ({ onSearch }) => {
     { value: 'TAG', label: '태그' },
   ];
 
-  // 현재 선택된 라벨 찾기
-  const currentLabel = options.find(opt => opt.value === searchType)?.label;
+  const currentLabel = typeOptions.find(opt => opt.value === searchType)?.label;
 
-  // 1. 드롭다운 선택 핸들러
   const handleSelect = (value) => {
     setSearchType(value);
-    setIsOpen(false); // 선택 후 닫기
+    setIsOpen(false);
 
     if (value === '') {
       setKeyword('');
@@ -30,13 +27,11 @@ const CommunitySearchBar = ({ onSearch }) => {
     }
   };
 
-  // 2. 검색 실행
   const handleSearch = (e) => {
     e.preventDefault();
     onSearch({ searchType, keyword });
   };
 
-  // 3. 외부 클릭 시 드롭다운 닫기
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -54,7 +49,7 @@ const CommunitySearchBar = ({ onSearch }) => {
     >
       <div className="relative flex gap-2 p-1.5 bg-white border-2 border-green-100 rounded-2xl shadow-sm focus-within:border-green-400 transition-all">
         
-        {/* 커스텀 드롭다운 시작 */}
+        {/* 드롭다운 부모 태그 */}
         <div className="relative" ref={dropdownRef}>
           <button
             type="button"

@@ -22,7 +22,6 @@ const SaisaiHome = () => {
       };
       fetchStats();
     };
-    //시간 설정 로직
     const hour = new Date().getHours();
     if (hour < 12) setTimeOfDay('아침');
     else if (hour < 18) setTimeOfDay('오후');

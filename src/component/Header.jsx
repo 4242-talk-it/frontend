@@ -9,12 +9,11 @@ const Header = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   
-  // 🚩 수정: userInfo 대신 리덕스 스토어에서 nickname을 직접 가져옵니다.
+  // userInfo 대신 리덕스 스토어에서 nickname을 직접 가져옴
   const { isLoggedIn, nickname } = useSelector((state) => state.login);
   const [isCompact, setIsCompact] = useState(false);
   const currentPath = location.pathname;
 
-  // 스크롤 시 헤더 높이 조절 이벤트
   useEffect(() => {
     const handleScroll = () => {
       const y = window.scrollY;
@@ -24,7 +23,6 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // 🚩 수정: 가져온 nickname 변수를 사용합니다.
   const userName = nickname || "사용자";
   const firstLetter = userName.charAt(0);
   
@@ -111,7 +109,6 @@ const Header = () => {
                 <div className="w-9 h-9 rounded-full flex items-center justify-center text-gray-700 font-bold shadow-sm" style={{ backgroundColor: "#A5F278" }}>
                   {firstLetter}
                 </div>
-                {/* 🚩 닉네임이 잘 나옵니다 */}
                 <span className="text-gray-700 font-medium hidden sm:inline">{userName}님</span>
               </button>
               <button

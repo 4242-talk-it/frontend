@@ -74,7 +74,7 @@ export default function CommunityDetail() {
       const [postRes, commentRes] = await Promise.all([
         axiosInstance.get(`/api/community/${id}`),
         axiosInstance.get(`/api/community/${id}/comments`, {
-        params: { pageNo: 1, pageSize: 100 } // 추가됨
+        params: { pageNo: 1, pageSize: 100 }
       })
         
       ]);
@@ -102,10 +102,7 @@ export default function CommunityDetail() {
 
   const handleToggleLike = async () => {
     try {
-      // API 호출 (백엔드 경로가 /toggle임을 확인하세요)
       await axiosInstance.post(`/api/community/${id}/like/toggle`);
-
-      // 새로고침 없이 화면의 하트와 숫자를 즉시 변경 (방법 B)
       setPost(prev => {
         const currentLiked = prev.isLiked;
         return {
@@ -143,9 +140,8 @@ export default function CommunityDetail() {
       });
       
       alert(response.data.message || "댓글이 등록되었습니다.");
-      setCommentText(""); // 입력창 초기화
+      setCommentText("");
       
-      // 댓글 목록만 새로고침
       const commentRes = await axiosInstance.get(`/api/community/${id}/comments`, {
       params: { pageNo: 1, pageSize: 100 }
     });
@@ -156,17 +152,14 @@ export default function CommunityDetail() {
     }
   };
 
-//댓글 삭제
   const handleDeleteComment = async (commentId) => {
   if (!window.confirm("정말로 이 댓글을 삭제하시겠습니까?")) return;
 
   try {
-    // 백엔드 경로: /api/community/{id}/comments/{commentId}
     await axiosInstance.delete(`/api/community/${id}/comments/${commentId}`);
     
     alert("댓글이 삭제되었습니다.");
     
-    // 댓글 목록만 새로고침 (기존에 만든 로직 재사용)
     const commentRes = await axiosInstance.get(`/api/community/${id}/comments`, {
       params: { pageNo: 1, pageSize: 100 }
     });

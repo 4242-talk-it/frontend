@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 
-// 재사용 컴포넌트들
 const PageHeader = ({ title, subtitle }) => (
   <div className="text-center mb-10">
     <h1 className="text-3xl font-bold text-gray-800 mb-3">{title}</h1>
@@ -22,7 +21,7 @@ const Tag = ({ children, onRemove }) => (
 );
 
 export default function CommunityEdit() {
-  const { id } = useParams(); // URL에서 게시글 ID 가져오기
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [category, setCategory] = useState('');
@@ -81,7 +80,6 @@ export default function CommunityEdit() {
     }
   };
 
-  // 2. 실제 게시물 수정 실행 (PUT /api/community/{id})
   const handleSubmit = async () => {
   if (!category || !title.trim() || !content.trim()) {
     alert('카테고리, 제목, 내용을 모두 입력해주세요.');
@@ -97,7 +95,6 @@ export default function CommunityEdit() {
         tags: tags
       };
 
-      // PUT 메서드 사용 및 JSON 객체 전달
       await axiosInstance.put(`/api/community/${id}`, requestData);
       
       alert('게시글이 성공적으로 수정되었습니다!');

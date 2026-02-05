@@ -34,7 +34,7 @@ const Signup = () => {
 
       if (response.status === 200 || response.status === 201) {
         alert('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.');
-        navigate('/login'); // 성공 시 이동
+        navigate('/login');
       }
     } catch (error) {
       console.error('회원가입 에러:', error);

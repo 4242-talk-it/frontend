@@ -1,14 +1,9 @@
-/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import { MessageCircle, TrendingUp, Settings } from 'lucide-react';
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
-// 🚩 경로 수정: mypage 폴더 안에 있으므로 두 단계 위로 이동
 import { logout, loginSuccess } from "../../slices/loginSlice";
 import axiosInstance from "../../api/axiosInstance";
-
-// 탭 컴포넌트 임포트
 import RecordsTab from './RecordsTab';
 import GrowthTab from './GrowthTab';
 import SettingsTab from './SettingsTab';
@@ -17,10 +12,8 @@ const MyPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // 1. Redux loginSlice의 initialState 구조에 맞춰 개별 데이터 추출
   const { userId, email, nickname } = useSelector((state) => state.login);
   
-  // 2. 하위 컴포넌트(SettingsTab)에 전달하기 위한 통합 유저 객체 생성
   const currentUser = { userId, email, nickname };
 
   const [activeTab, setActiveTab] = useState('records');
@@ -88,11 +81,9 @@ const MyPage = () => {
     { id: 4, name: '성장러', icon: '🌱', unlocked: true, description: '한 달 연속 사용' },
   ];
 
-  // --- 핸들러 로직 ---
   const handleUpdateNickname = async (updatedNickname) => {
     try {
       const response = await axiosInstance.patch('/api/users/nickname', { nickname: updatedNickname });
-      // 🚩 수정: Redux에 업데이트할 때도 userInfo 대신 개별 필드를 반영한 객체 전달
       dispatch(loginSuccess({ userId, email, nickname: response.data.data }));
       alert("닉네임이 수정되었습니다.");
     } catch (error) {
@@ -133,7 +124,6 @@ const MyPage = () => {
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 rounded-full flex items-center justify-center text-gray-700 font-bold text-2xl shadow-sm" style={{ backgroundColor: "#A5F278" }}>
-              {/* 🚩 수정: userInfo?.nickname -> nickname 직접 참조 */}
               {nickname?.charAt(0) || "U"}
             </div>
             <div>
