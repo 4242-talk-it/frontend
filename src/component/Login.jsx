@@ -39,11 +39,9 @@ const Login = () => {
         navigate('/home'); 
       }
     } catch (error) {
-      // 🚩 실패 시 비밀번호 필드만 초기화 (이메일은 남겨둠)
       setFormData(prev => ({ ...prev, password: '' }));
 
       if (error.response) {
-        // 백엔드에서 NOT_FOUND_USER 메시지가 와도 프론트에서 커스텀 출력
         const serverMsg = error.response.data?.message;
         if (serverMsg === "사용자를 찾을 수 없습니다.") {
           alert("이메일 또는 비밀번호가 일치하지 않습니다.");
@@ -66,7 +64,6 @@ const Login = () => {
   try {
     await axiosInstance.patch('/api/users/restore', { email });
     alert("계정이 복구되었습니다. 다시 로그인해주세요.");
-    // 이메일은 남겨두고 비밀번호만 다시 입력하도록 유도
     setFormData(prev => ({ ...prev, password: '' }));
   } catch (error) {
     alert(error.response?.data?.message || "계정 복구 중 오류가 발생했습니다.");
@@ -87,7 +84,6 @@ const Login = () => {
           <p className="text-gray-600">당신의 이야기를 이어가세요</p>
         </div>
 
-        {/* onSubmit을 사용하여 엔터 키 및 제출 트리거를 확실하게 잡습니다 */}
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="relative">
             <label className="block text-sm font-medium text-gray-700 mb-2">이메일</label>

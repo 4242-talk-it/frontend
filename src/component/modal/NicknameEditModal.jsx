@@ -9,22 +9,19 @@ const NicknameEditModal = ({
 }) => {
   const [newNickname, setNewNickname] = useState('');
 
-  // 모달이 열릴 때마다 입력 필드 초기화 (선택 사항)
   useEffect(() => {
     if (isOpen) {
       setNewNickname('');
     }
   }, [isOpen]);
 
-  // 버튼 비활성화 조건: 
-  // 1. 공백만 있거나 (trim)
-  // 2. 현재 닉네임과 똑같을 때
+ 
   const isInvalid = !newNickname.trim() || newNickname === currentNickname;
 
   const handleNicknameSubmit = () => {
     if (!isInvalid) {
       onSubmit(newNickname);
-      setNewNickname(''); // 제출 후 초기화
+      setNewNickname('');
     }
   };
 

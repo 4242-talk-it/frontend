@@ -27,7 +27,7 @@ const Layout = () => {
 
 const router = createBrowserRouter([
   {
-    // 🚩 1. 헤더가 공통으로 들어가야 하는 '인증 전용' 페이지들
+    // 헤더가 공통으로 들어가야 하는 '인증 전용' 페이지들
     path: '/',
     element: <Layout />, 
     children: [
@@ -102,7 +102,7 @@ const router = createBrowserRouter([
       },
     ],
   },
-  // 🚩 2. 헤더가 이미 포함되어 있거나 레이아웃이 필요 없는 페이지들 (Layout 밖으로 이동)
+  // 헤더가 이미 포함되어 있거나 레이아웃이 필요 없는 페이지들 (Layout 밖으로 이동)
   {
     path: '/',
     index: true,
@@ -117,7 +117,7 @@ const router = createBrowserRouter([
     element: <Signup />,
   },
   {
-    path: 'unauthenticated', // 🚩 미인증 안내 시 랜딩페이지를 보여줄 경우
+    path: 'unauthenticated', // 미인증 안내 시 랜딩페이지를 보여줄 경우
     element: <LandingPage />,
   },
   {

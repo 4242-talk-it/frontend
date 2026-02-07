@@ -1,10 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-// 메인 컬러 시스템
 const COLORS = {
-  primary: "#A5F278",   // 연두색
-  secondary: "#7AADFE", // 푸른색
+  primary: "#A5F278",
+  secondary: "#7AADFE",
 };
 
 export default function App() {
@@ -24,7 +23,6 @@ export default function App() {
       <header className="w-full bg-white shadow-sm sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           
-          {/* 버튼 대신 div를 사용하여 클릭 기능을 제거합니다 */}
           <div className="flex items-center gap-2 text-xl font-bold text-gray-800">
             <div className="flex gap-1">
               <div className="w-6 h-6 rounded-full" style={{ backgroundColor: COLORS.primary }}></div>
@@ -88,10 +86,9 @@ export default function App() {
       <footer className="bg-gray-900 text-gray-200 py-20 mt-20">
         <div className="max-w-6xl mx-auto px-10">
           
-          {/* 3개의 영역을 그리드로 나누어 간격을 정확히 일치시킵니다 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-20">
             
-            {/* 1번 영역: 브랜드/로고 */}
+            {/* 로고 */}
             <div className="flex flex-col items-start">
               <div className="text-2xl font-bold text-white mb-4">말잇기</div>
               <p className="text-gray-500 text-sm leading-relaxed">
@@ -99,7 +96,7 @@ export default function App() {
               </p>
             </div>
 
-            {/* 2번 영역: 서비스 (정확히 중앙) */}
+            {/* 서비스 */}
             <div className="flex flex-col md:items-center">
               <div className="text-left md:text-left min-w-[100px]">
                 <h4 className="text-green-200 font-bold mb-6 text-lg tracking-wide">서비스</h4>
@@ -111,7 +108,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* 3번 영역: 팀 정보 (오른쪽) */}
+            {/* 팀원 정보 */}
             <div className="flex flex-col md:items-end">
               <div className="text-left md:text-left min-w-[100px]">
                 <h4 className="text-green-200 font-bold mb-6 text-lg tracking-wide">팀 정보</h4>

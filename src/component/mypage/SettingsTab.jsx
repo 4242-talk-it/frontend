@@ -21,15 +21,9 @@ const SettingsTab = ({
     }
 
     try {
-      // 1. 서버에 요청 전송
       const response = await axiosInstance.post('/api/users/verify-password', {
         currentPassword: currentPassword
       });
-
-      console.log("서버 응답 데이터:", response.data); // 디버깅용 로그
-
-      // 2. 서버가 200 OK를 보냈다면 (예외가 발생하지 않았다면) 성공으로 간주
-      // ResponseDto 구조에 따라 response.data.data 가 true인지 확인
       if (response.status === 200 || response.data.data === true) {
         setIsPasswordModalOpen(true);
       } else {
@@ -37,23 +31,21 @@ const SettingsTab = ({
       }
 
     } catch (error) {
-      // 3. 백엔드에서 throw new BusinessLogicException 발생 시 이쪽으로 옴
-      console.error("검증 에러:", error);
       const errorMessage = error.response?.data?.message || "비밀번호가 일치하지 않습니다.";
       alert(errorMessage);
-      setIsPasswordModalOpen(false); // 실패 시 확실히 닫힘 상태 유지
+      setIsPasswordModalOpen(false);
     }
   };
 
   const handleUpdatePassword = async ({ newPassword }) => {
     try {
       await axiosInstance.patch('/api/users/update-password', {
-        currentPassword, // 메인 input에 입력된 값 사용
-        newPassword      // 모달에서 전달받은 값 사용
+        currentPassword,
+        newPassword
       });
       alert('비밀번호가 성공적으로 변경되었습니다.');
       setIsPasswordModalOpen(false);
-      setCurrentPassword(''); // 입력창 초기화
+      setCurrentPassword('');
     } catch (error) {
       alert(error.response?.data?.message || '변경 실패');
     }

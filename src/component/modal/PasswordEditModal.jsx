@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import Modal from '../common/Modal';
-import { Lock, Eye, EyeOff } from 'lucide-react'; // 아이콘 라이브러리 임포트 확인
+import { Lock, Eye, EyeOff } from 'lucide-react';
 
 const PasswordEditModal = ({ isOpen, onClose, onSubmit }) => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
-  // 각각의 입력창에 대한 가시성 상태 관리
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -27,7 +26,6 @@ const PasswordEditModal = ({ isOpen, onClose, onSubmit }) => {
     onSubmit({ newPassword });
     setNewPassword('');
     setConfirmPassword('');
-    // 모달 닫힐 때 눈 모양 초기화
     setShowNewPassword(false);
     setShowConfirmPassword(false);
   };
