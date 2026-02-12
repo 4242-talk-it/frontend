@@ -33,24 +33,40 @@ const AICoachChat = () => {
   // 2. 새 채팅방 생성 (상황 선택 시)
   const handleSelectSituation = async (situationId) => {
     try {
+      // 1. 새 채팅방 생성 API 호출
       const response = await axios.post("/api/ai-chat/room", { situationId });
       const newRoom = response.data.data;
       
       setCurrentRoomId(newRoom.chatRoomId);
+
+      // 2. 전체 목록 갱신 (사이드바용)
+      const roomResponse = await axios.get(`/api/ai-chat/my-rooms`);
+      const updatedRooms = roomResponse.data.data;
+      setMyRooms(updatedRooms);
+
+      // 3. 🚨 [수정 포인트] 화면 초기화 방지
+      // 새로 만든 방은 'newRoom'에 들어있는 초기 메시지만 보여줍니다.
+      // 기존 messages를 덮어씌우지 않고, 새로운 방의 시작을 알립니다.
       setMessages([
-        { type: "NOTICE", content: `안녕하세요! '${newRoom.situationTitle}' 연습을 시작합니다. 👍` }
+        { type: "NOTICE", content: `새로운 연습을 시작합니다. 👍` },
+        ...(newRoom.messages || []) // 생성 직후 백엔드가 넘겨준 메시지만 표시
       ]);
-      const roomRes = await axios.get("/api/ai-chat/my-rooms");
-      setMyRooms(roomRes.data.data);
+
+      setShowChat(true);
     } catch (error) {
-      alert("채팅방 생성에 실패했습니다.");
+      console.error("채팅방 생성 에러:", error);
+      alert("채팅방 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
     }
   };
 
-  // 3. 이전 대화 기록 불러오기 (기록 클릭 시)
   const handleLoadPastRoom = (room) => {
+    // 💡 방을 옮길 때 기존 대화가 날아가지 않도록 안전하게 로드합니다.
     setCurrentRoomId(room.chatRoomId);
-    setMessages(room.messages);
+    if (room.messages && room.messages.length > 0) {
+      setMessages(room.messages);
+    } else {
+      setMessages([{ type: "NOTICE", content: "이전 대화 내용이 없습니다." }]);
+    }
     setShowChat(true);
   };
 
