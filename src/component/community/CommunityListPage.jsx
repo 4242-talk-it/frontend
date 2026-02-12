@@ -9,12 +9,30 @@ import CommunitySearchBar from './CommunitySearchBar';
 const CommunityListPage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [stats, setStats] = useState({
+    totalPostCount: 0,
+    totalCommentCount: 0,
+    activeUserCount: 0
+  });
+
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [viewMode, setViewMode] = useState('grid');
   const [isTopButtonVisible, setIsTopButtonVisible] = useState(false);
   const [searchCondition, setSearchCondition] = useState({ searchType: 'TITLE', keyword: '' });
   
   const navigate = useNavigate();
+
+  const fetchStats = async () => {
+    try {
+      const response = await axiosInstance.get('/api/community/stats');
+      if (response.data && response.data.data) {
+        setStats(response.data.data);
+      }
+    } catch (error) {
+      console.error("통계 데이터 로드 실패:", error);
+    }
+  }
 
   const fetchCommunityPosts = useCallback(async (condition) => {
     try {
@@ -45,12 +63,15 @@ const CommunityListPage = () => {
 
   useEffect(() => {
     fetchCommunityPosts(searchCondition);
+    fetchStats();
+
     const handleScroll = () => setIsTopButtonVisible(window.scrollY > 100);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [fetchCommunityPosts, searchCondition]);
-  const categories = ['전체', '대화후기', '일상공유', '질문하기', '꿀팁공유', '감사인사'];
   
+
+  const categories = ['전체', '대화후기', '일상공유', '질문하기', '꿀팁공유', '감사인사'];
   const filteredPosts = posts.filter(post => {
     if (selectedCategory === '전체') return true;
     if (selectedCategory === '인기글') return post.likeCount >= 20;
@@ -72,15 +93,21 @@ return (
           {/* 통계 수치 영역 */}
           <div className="flex flex-wrap justify-center gap-8 sm:gap-16 mb-12">
             <div>
-              <div className="text-3xl sm:text-4xl font-bold text-green-400">{posts.length}</div>
+              <div className="text-3xl sm:text-4xl font-bold text-green-400">
+                {(stats.totalPostCount || 0).toLocaleString()}
+              </div>
               <div className="text-sm text-gray-500 mt-1">게시글</div>
             </div>
             <div>
-              <div className="text-3xl sm:text-4xl font-bold text-green-400">3,829</div>
+              <div className="text-3xl sm:text-4xl font-bold text-green-400">
+                {(stats.totalCommentCount || 0).toLocaleString()}
+              </div>
               <div className="text-sm text-gray-500 mt-1">댓글</div>
             </div>
             <div>
-              <div className="text-3xl sm:text-4xl font-bold text-green-400">856</div>
+              <div className="text-3xl sm:text-4xl font-bold text-green-400">
+                {(stats.activeUserCount || 0).toLocaleString()}
+              </div>
               <div className="text-sm text-gray-500 mt-1">활동 멤버</div>
             </div>
           </div>
