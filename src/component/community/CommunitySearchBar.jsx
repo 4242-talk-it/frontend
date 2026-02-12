@@ -63,7 +63,7 @@ const CommunitySearchBar = ({ onSearch }) => {
           {/* 드롭다운 메뉴 */}
           {isOpen && (
             <div className="absolute top-full left-0 mt-2 w-full min-w-[120px] bg-white border border-green-50 rounded-2xl shadow-xl z-50 overflow-hidden py-1 animate-in fade-in slide-in-from-top-1">
-              {options.map((option) => (
+              {typeOptions.map((option) => (
                 <button
                   key={option.value}
                   type="button"
