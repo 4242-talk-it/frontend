@@ -7,7 +7,7 @@ const CommunitySearchBar = ({ onSearch }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const typeOptions = [
+  const options = [
     { value: '', label: '전체' },
     { value: 'TITLE', label: '제목' },
     { value: 'CONTENT', label: '내용' },
@@ -15,7 +15,7 @@ const CommunitySearchBar = ({ onSearch }) => {
     { value: 'TAG', label: '태그' },
   ];
 
-  const currentLabel = typeOptions.find(opt => opt.value === searchType)?.label;
+  const currentLabel = options.find(opt => opt.value === searchType)?.label;
 
   const handleSelect = (value) => {
     setSearchType(value);
