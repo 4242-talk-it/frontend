@@ -58,7 +58,7 @@ const ChattingEndModal = ({ isOpen, onClose }) => {
             }}
             className="flex-1 px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-medium text-white bg-blue-500 hover:bg-blue-600 transition-colors"
           >
-            다음
+            종료
           </button>
         </div>
       </div>

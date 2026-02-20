@@ -5,19 +5,24 @@ import SockJS from "sockjs-client";
 import TopicSelectionModal from "./modal/TopicSelectionModal";
 import ChattingEndModal from "./modal/ChattingEndModal";
 import CreateChatRoom from "./modal/CreateChatRoom";
+import ChattingExtendModal from "./modal/ChattingExtendModal";
+import ChattingExtendWaitingModal from "./modal/ChattingExtendWaitingModal.jsx";
 
 const Chattingpage = () => {
   const [showChatEnd, setShowChatEnd] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [turnCount, setTurnCount] = useState(0);
-  const [maxTurns] = useState(40); //메세지 전체 개수 제한
+  const [setTurnCount] = useState(0);
+  const [maxTurns, setMaxTurns] = useState(3); //메세지 전체 개수 제한
   const [myContinuousCount, setMyContinuousCount] = useState(0); //연속 전송 회수
   const [inputText, setInputText] = useState("");
   const [showTopicModal, setShowTopicModal] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showExtendModal, setShowExtendModal] = useState(false);
+  const [showExtendWaitingModal, setShowExtendWaitingModal] = useState(false);
   const [dbTopics, setDbTopics] = useState([]);
 
   const isMounted = useRef(false);
+  const userIdRef = useRef(null);
 
   // --- 추가된 실시간 통신 상태 ---
   const [roomId, setRoomId] = useState(null);
@@ -48,18 +53,20 @@ const Chattingpage = () => {
       return;
     }
 
-    console.log(`${room.topic} 방으로 입장합니다. ID: ${room.roomId}, UserID: ${currentUserId}`);
+    console.log(
+      `${room.topic} 방으로 입장합니다. ID: ${room.roomId}, UserID: ${currentUserId}`,
+    );
 
     setUserId(currentUserId);
     setRoomId(room.roomId);
+    setMaxTurns(room.maxTurns);
     setIsMatched(true);
     setShowTopicModal(false);
 
-    disconnect(); 
+    disconnect();
     connect(room.roomId);
     loadHistory(room.roomId, currentUserId);
   };
-
 
   // 페이지 로드 시 및 모달이 켜질 때 호출
   useEffect(() => {
@@ -77,7 +84,7 @@ const Chattingpage = () => {
         stompClient.current.deactivate();
       }
     };
-  }, []); 
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -87,6 +94,10 @@ const Chattingpage = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+  userIdRef.current = userId;
+}, [userId]);
 
   const initMatch = async (selectedTopic) => {
     try {
@@ -107,6 +118,7 @@ const Chattingpage = () => {
 
       if (data && data.roomId) {
         setRoomId(data.roomId);
+        setMaxTurns(data.maxTurns);
         setIsMatched(data.matched);
         setUserId(data.userId);
 
@@ -118,7 +130,7 @@ const Chattingpage = () => {
     }
   };
 
-  const loadHistory = async (id,currentUserId) => {
+  const loadHistory = async (id, currentUserId) => {
     if (!id) return;
 
     try {
@@ -134,13 +146,11 @@ const Chattingpage = () => {
       for (let i = historyArray.length - 1; i >= 0; i--) {
         if (historyArray[i].senderId === Number(activeId)) {
           count++;
-          
         } else {
           break;
         }
       }
       setMyContinuousCount(count);
-
     } catch (error) {
       console.error("History 로드 에러:", error);
       setMessages([]); // 에러 시 빈 배열로 초기화
@@ -159,7 +169,7 @@ const Chattingpage = () => {
 
   const handleConfirmCreate = (newTopic) => {
     setShowCreateModal(false);
-    initMatch(newTopic); 
+    initMatch(newTopic);
   };
 
   const connect = (id) => {
@@ -169,21 +179,53 @@ const Chattingpage = () => {
       webSocketFactory: () => socket,
       onConnect: () => {
         stompClient.current.subscribe(`/sub/room/${id}`, (frame) => {
+          
           if (frame.body === "MATCH_COMPLETE") {
+            console.log("매칭 완료 신호 수신 (String)");
             setIsMatched(true);
             return;
           } else {
             try {
-              const newMessage = JSON.parse(frame.body);
+              const data = JSON.parse(frame.body);
 
-              if (newMessage.type === "CHAT_END") {
+              if (
+                data.status === "MATCH_COMPLETE" ||
+                data.type === "MATCH_COMPLETE"
+              ) {
+                console.log("매칭 완료 신호 수신 (JSON)");
+                setIsMatched(true);
+                return;
+              }
+
+              if (data.type === "EXTEND_REJECTED") {
+                setShowExtendWaitingModal(false); 
+                setShowExtendModal(false); 
                 setShowChatEnd(true);
                 return;
               }
-              setMessages((prev) => [...prev, newMessage]);
+
+              if (data.type === "EXTEND_COMPLETE") {
+                setShowExtendWaitingModal(false); // 1. 대기 모달 닫기
+                if (data.newMaxTurns) {
+                  setMaxTurns(data.newMaxTurns);
+                }
+                return;
+              }
+
+              if (data.type === "CHAT_END") {
+                const currentMax = data.maxTurns || maxTurns;
+                if (currentMax > 3) {
+                  setShowExtendModal(false);
+                  setShowChatEnd(true); // 바로 최종 종료(감정 선택) 모달 오픈
+                } else {
+                  setShowExtendModal(true); // 아직 연장 전이면 연장 제안 모달 오픈
+                }
+                return;
+              }
+              setMessages((prev) => [...prev, data]);
               setTurnCount((prev) => prev + 1);
 
-              if (newMessage.senderId !== Number(userId)) {
+              if (Number(data.senderId) !== Number(userIdRef.current)) {
                 setMyContinuousCount(0);
               }
             } catch (e) {
@@ -193,12 +235,12 @@ const Chattingpage = () => {
         });
       },
       onStompError: (frame) => {
-        console.error('Broker reported error: ' + frame.headers['message']);
-            console.error('Additional details: ' + frame.body);
+        console.error("Broker reported error: " + frame.headers["message"]);
+        console.error("Additional details: " + frame.body);
       },
       onWebSocketClose: (event) => {
-      console.log("⚠️ 닫힘 코드:", event.code, event.reason);
-    }
+        console.log("⚠️ 닫힘 코드:", event.code, event.reason);
+      },
     });
     stompClient.current.activate();
   };
@@ -208,51 +250,61 @@ const Chattingpage = () => {
   };
 
   const handleSendMessage = () => {
-    if (
-      inputText.trim() &&
-      isMatched &&
-      stompClient.current &&
-      userId &&
-      myContinuousCount < 3
-    ) {
+    const trimmedText = inputText.trim();
+    if (!trimmedText || !isMatched || !stompClient.current || !userId) return;
+    if (myContinuousCount >= 3) {
+      alert("상대방의 대답을 기다려야 합니다."); // 방어 코드
+    return;
+  }
+    
       stompClient.current.publish({
         destination: `/pub/room/${roomId}/message`,
         body: JSON.stringify({ message: inputText }),
         headers: { userId: String(userId) },
       });
-      setMyContinuousCount((prev) => prev + 1);
+      setMyContinuousCount((prev) => {
+      const newCount = prev + 1;
+      return newCount;
+    });
       setInputText("");
+    
+  };
 
-      // 전체 종료 체크
-      if (turnCount + 1 >= maxTurns) {
-        setTimeout(() => setShowChatEnd(true), 1500);
-      }
+  const handleExtendChat = () => {
+    setShowExtendModal(false);
+    setShowExtendWaitingModal(true);
 
-      setInputText("");
-
-      //대화 종료 트리거 체크
-      if (turnCount >= maxTurns) {
-        setTimeout(() => setShowChatEnd(true), 1500);
-      }
+    if (stompClient.current && roomId && userId) {
+      stompClient.current.publish({
+        destination: `/pub/room/${roomId}/extend`, // 컨트롤러의 주소
+        headers: { userId: String(userId) },
+        // 별도의 바디 데이터가 없어도 헤더의 userId로 서버에서 처리 가능합니다.
+        body: JSON.stringify({ action: "EXTEND" }),
+      });
+      console.log(
+        `서버로 연장 요청을 보냈습니다. Room: ${roomId}, User: ${userId}`,
+      );
     }
   };
 
+  const isInputDisabled = !isMatched || myContinuousCount >= 3;
   let placeholderText = "매칭 대기 중...";
   if (isMatched) {
-  placeholderText = myContinuousCount >= 3 
-    ? "상대방의 대답을 기다려주세요." 
-    : "메시지를 입력해주세요...";
-}
+    placeholderText =
+      myContinuousCount >= 3
+        ? "상대방의 대답을 기다려주세요."
+        : "메시지를 입력해주세요...";
+  }
 
   return (
     <div className="w-full h-screen bg-gray-50 flex items-center justify-center relative">
       <div
-        className={`w-full h-full max-w-4xl mx-auto bg-white flex flex-col transition-all duration-300 ${showChatEnd ? "blur-sm" : ""}`}
+        className={`w-full h-full max-w-4xl mx-auto bg-white flex flex-col transition-all duration-300 
+          ${showChatEnd || showExtendModal ? "blur-sm" : ""}`}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-3 sm:p-4 border-b bg-white">
           <div className="flex items-center gap-2 sm:gap-3">
-            
             <button className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg">
               <X className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
             </button>
@@ -274,7 +326,7 @@ const Chattingpage = () => {
               {Array.isArray(messages) &&
                 messages.map((msg) => (
                   <div key={msg.cmid}>
-                    {msg.senderId === Number(userId) ?  (
+                    {msg.senderId === Number(userId) ? (
                       /* 내가 보낸 메시지 UI (오른쪽) */
                       <div className="flex justify-end mb-4">
                         <div className="flex flex-col items-end">
@@ -291,7 +343,7 @@ const Chattingpage = () => {
                           </p>
                         </div>
                       </div>
-                    ): (
+                    ) : (
                       /* 상대방 UI (왼쪽) */
                       <div className="flex gap-2 sm:gap-3 mb-4">
                         <div className="flex-shrink-0">
@@ -332,12 +384,13 @@ const Chattingpage = () => {
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                   placeholder={placeholderText}
-                  disabled={!isMatched || myContinuousCount >= 3}
+                  disabled={isInputDisabled}
                   className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 
-                    ${isMatched ? "" : "bg-gray-100 cursor-not-allowed"}`}
+                    ${!isInputDisabled ? "bg-white cursor-text" : "bg-gray-100 cursor-not-allowed"}`}
                 />
                 <button
                   onClick={handleSendMessage}
+                  disabled={isInputDisabled}
                   className="px-4 sm:px-6 py-2.5 sm:py-3 bg-green-400 text-white rounded-lg hover:bg-green-500 transition-colors"
                 >
                   <Send className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -362,6 +415,27 @@ const Chattingpage = () => {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onCreate={handleConfirmCreate}
+      />
+
+      <ChattingExtendModal
+        isOpen={showExtendModal}
+        onClose={() => {
+          stompClient.current.publish({
+            destination: `/pub/room/${roomId}/reject`,
+            headers: { userId: String(userId) },
+          });
+          setShowExtendModal(false);
+          setShowChatEnd(true); // '종료하기' 누르면 감정 선택 모달 오픈
+        }}
+        onExtend={handleExtendChat}
+      />
+
+      <ChattingExtendWaitingModal
+        isOpen={showExtendWaitingModal}
+        onCancel={() => {
+          setShowExtendWaitingModal(false);
+          setShowChatEnd(true);
+        }}
       />
 
       <ChattingEndModal
