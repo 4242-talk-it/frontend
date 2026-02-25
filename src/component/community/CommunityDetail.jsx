@@ -117,6 +117,23 @@ export default function CommunityDetail() {
     }
   };
 
+  const handleToggleBookmark = async () => {
+  try {
+    const response = await axiosInstance.post(`/api/community/${id}/bookmark/toggle`);
+    const isBookmarked = response.data.data;
+
+    setPost(prev => ({
+      ...prev,
+      isBookmarked: isBookmarked
+    }));
+    
+    alert(isBookmarked ? "즐겨찾기에 등록되었습니다." : "즐겨찾기가 취소되었습니다.");
+    } catch (e) {
+      console.error("즐겨찾기 실패:", e);
+      alert("즐겨찾기 처리에 실패했습니다.");
+    }
+  };
+
   const handleDelete = async () => {
     if (!window.confirm("정말로 삭제하시겠습니까?")) return;
     try {
@@ -242,6 +259,12 @@ export default function CommunityDetail() {
                 count={post.likeCount}
                 active={post.isLiked}
                 onClick={handleToggleLike}
+              />
+              <ActionButton
+                icon={post.isBookmarked ? '🔖' : '📑'}
+                count={post.isBookmarked ? "저장됨" : "저장"}
+                active={post.isBookmarked}
+                onClick={handleToggleBookmark}
               />
               <ActionButton icon="💬" count={comments.length} disabled />
             </div>
