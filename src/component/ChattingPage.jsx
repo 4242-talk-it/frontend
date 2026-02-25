@@ -441,6 +441,7 @@ const Chattingpage = () => {
       <ChattingEndModal
         isOpen={showChatEnd}
         onClose={() => setShowChatEnd(false)}
+        roomId={roomId}
       />
     </div>
   );

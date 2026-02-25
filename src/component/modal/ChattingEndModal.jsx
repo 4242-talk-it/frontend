@@ -1,7 +1,8 @@
 import React, {useState} from "react";
+import axios from "axios";
 
-const ChattingEndModal = ({ isOpen, onClose }) => {
-  const [selectedEmotions, setSelectedEmotions] = useState([]);
+const ChattingEndModal = ({ isOpen, onClose, roomId }) => {
+  const [selectedEmotion, setSelectedEmotion] = useState(null);
 
   const emotions = [
     { text: "정말 즐거웠어요", emoji: "🥰" },
@@ -11,12 +12,29 @@ const ChattingEndModal = ({ isOpen, onClose }) => {
     { text: "불편했어요", emoji: "😣" },
   ];
 
-  const toggleEmotion = (emotion) => {
-    setSelectedEmotions((prev) =>
-      prev.includes(emotion)
-        ? prev.filter((e) => e !== emotion)
-        : [...prev, emotion],
-    );
+  const toggleEmotion = (emotionText) => {
+    setSelectedEmotion((prev) => (prev === emotionText ? null : emotionText));
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedEmotion) {
+      alert("상대방에 대한 감정을 선택해주세요!");
+      return;
+    }
+
+    try {
+      // 백엔드 컨트롤러 경로: /api/user-chat/room/{roomId}/review
+      await axios.post(`/api/user-chat/room/${roomId}/review`, {
+        emotion: selectedEmotion, // ReviewRequestDto의 emotion 필드로 들어감
+      });
+
+      alert("소중한 후기 감사합니다. 온도가 반영되었습니다!");
+      onClose(); // 모달 닫기
+      window.location.href = "/mypage"; // 혹은 목록으로 이동
+    } catch (error) {
+      console.error("후기 저장 실패:", error);
+      alert("후기 저장 중 오류가 발생했습니다.");
+    }
   };
 
   if (!isOpen) return null;
@@ -40,7 +58,7 @@ const ChattingEndModal = ({ isOpen, onClose }) => {
               key={idx}
               onClick={() => toggleEmotion(emotion.text)}
               className={`px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all ${
-                selectedEmotions.includes(emotion.text)
+                selectedEmotion===emotion.text
                   ? "bg-blue-500 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
@@ -52,10 +70,7 @@ const ChattingEndModal = ({ isOpen, onClose }) => {
 
         <div className="flex gap-2 sm:gap-3">
           <button
-            onClick={() => {
-              alert("감정이 저장되었습니다!");
-              onClose(); // 모달 닫기
-            }}
+            onClick={handleSubmit}
             className="flex-1 px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-medium text-white bg-blue-500 hover:bg-blue-600 transition-colors"
           >
             종료
