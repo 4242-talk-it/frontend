@@ -8,7 +8,6 @@ const AICoachChat = () => {
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // API 연동을 위한 상태 관리
   const [situations, setSituations] = useState([]);
   const [myRooms, setMyRooms] = useState([]);
   const [currentRoomId, setCurrentRoomId] = useState(null);
@@ -30,26 +29,18 @@ const AICoachChat = () => {
     fetchInitialData();
   }, []);
 
-  // 2. 새 채팅방 생성 (상황 선택 시)
   const handleSelectSituation = async (situationId) => {
     try {
-      // 1. 새 채팅방 생성 API 호출
       const response = await axios.post("/api/ai-chat/room", { situationId });
       const newRoom = response.data.data;
       
       setCurrentRoomId(newRoom.chatRoomId);
-
-      // 2. 전체 목록 갱신 (사이드바용)
       const roomResponse = await axios.get(`/api/ai-chat/my-rooms`);
       const updatedRooms = roomResponse.data.data;
       setMyRooms(updatedRooms);
-
-      // 3. 🚨 [수정 포인트] 화면 초기화 방지
-      // 새로 만든 방은 'newRoom'에 들어있는 초기 메시지만 보여줍니다.
-      // 기존 messages를 덮어씌우지 않고, 새로운 방의 시작을 알립니다.
       setMessages([
         { type: "NOTICE", content: `새로운 연습을 시작합니다. 👍` },
-        ...(newRoom.messages || []) // 생성 직후 백엔드가 넘겨준 메시지만 표시
+        ...(newRoom.messages || [])
       ]);
 
       setShowChat(true);
@@ -60,7 +51,6 @@ const AICoachChat = () => {
   };
 
   const handleLoadPastRoom = (room) => {
-    // 💡 방을 옮길 때 기존 대화가 날아가지 않도록 안전하게 로드합니다.
     setCurrentRoomId(room.chatRoomId);
     if (room.messages && room.messages.length > 0) {
       setMessages(room.messages);
@@ -70,7 +60,6 @@ const AICoachChat = () => {
     setShowChat(true);
   };
 
-  // 4. 메시지 전송 및 AI 답변 받기
   const handleSendMessage = async () => {
     if (!inputText.trim() || !currentRoomId || isLoading) return;
 
