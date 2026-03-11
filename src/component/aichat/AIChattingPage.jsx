@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { MessageCircle, RotateCcw, HelpCircle, Send, History } from "lucide-react";
 import axios from "../../api/axiosInstance";
+import { Send } from "lucide-react";
+import AISituationSidebar from "./AISituationiSidebar";
+import ChatHistorySidebar from "./ChatHistorySidebar";
 import AIChattingHeader from "./AIChattingHeader";
 import ChattingEndModal from "./AIChatEndModal";
 import AIChatHelpModal from "../modal/ChattingHelpModal";
@@ -15,7 +17,7 @@ const AICoachChat = () => {
   const [myRooms, setMyRooms] = useState([]);
   const [currentRoomId, setCurrentRoomId] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [isEndModalOpen, setIsEndModalOpen] = useState(false); 
+  const [isEndModalOpen, setIsEndModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -33,6 +35,7 @@ const AICoachChat = () => {
     fetchInitialData();
   }, []);
 
+  // 상황 선택 핸들러
   const handleSelectSituation = async (situationId) => {
     try {
       const response = await axios.post("/api/ai-chat/room", { situationId });
@@ -40,30 +43,30 @@ const AICoachChat = () => {
       
       setCurrentRoomId(newRoom.chatRoomId);
       const roomResponse = await axios.get(`/api/ai-chat/my-rooms`);
-      const updatedRooms = roomResponse.data.data;
-      setMyRooms(updatedRooms);
+      setMyRooms(roomResponse.data.data);
+      
       setMessages([
         { type: "NOTICE", content: `새로운 연습을 시작합니다. 👍` },
         ...(newRoom.messages || [])
       ]);
-
       setShowChat(true);
     } catch (error) {
       console.error("채팅방 생성 에러:", error);
-      alert("채팅방 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      alert("채팅방 생성에 실패했습니다.");
     }
   };
 
+  // 과거 기록 로드 핸들러
   const handleLoadPastRoom = (room) => {
     setCurrentRoomId(room.chatRoomId);
-    if (room.messages && room.messages.length > 0) {
-      setMessages(room.messages);
-    } else {
-      setMessages([{ type: "NOTICE", content: "이전 대화 내용이 없습니다." }]);
-    }
+    setMessages(room.messages && room.messages.length > 0 
+      ? room.messages 
+      : [{ type: "NOTICE", content: "이전 대화 내용이 없습니다." }]
+    );
     setShowChat(true);
   };
 
+  // 메시지 전송 핸들러
   const handleSendMessage = async () => {
     if (!inputText.trim() || !currentRoomId || isLoading) return;
 
@@ -76,8 +79,11 @@ const AICoachChat = () => {
       const response = await axios.post(`/api/ai-chat/message/${currentRoomId}`, {
         message: inputText
       });
-      const aiAnswer = response.data.data;
-      setMessages((prev) => [...prev, { type: "AI", content: aiAnswer, createdAt: new Date().toISOString() }]);
+      setMessages((prev) => [...prev, { 
+        type: "AI", 
+        content: response.data.data, 
+        createdAt: new Date().toISOString() 
+      }]);
     } catch (error) {
       console.error("메시지 전송 실패:", error);
     } finally {
@@ -86,70 +92,21 @@ const AICoachChat = () => {
   };
 
   const handleReset = () => {
-    if (window.confirm("현재 채팅을 초기화하시겠습니까? (방 ID는 유지됩니다)")) {
-        setMessages(prev => [prev[0]]);
+    if (window.confirm("현재 채팅을 초기화하시겠습니까?")) {
+      setMessages(prev => [prev[0]]);
     }
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* 왼쪽 사이드바 */}
-      <div className="w-80 bg-white border-r flex flex-col">
-        <div className="p-6 border-b">
-          <h2 className="text-xl font-bold text-gray-800 mb-2">AI 말연습장</h2>
-          <p className="text-sm text-blue-500 mb-4">부담 없이 연습해보세요</p>
-          <button className="w-full bg-gradient-to-r from-green-400 to-blue-400 text-white py-2.5 rounded-lg font-medium">
-            무제한 연습 가능
-          </button>
-        </div>
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      {/* 왼쪽 사이드바: 상황 선택 */}
+      <AISituationSidebar 
+        situations={situations} 
+        onSelectSituation={handleSelectSituation} 
+      />
 
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-6">
-            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="text-lg">💡</span> 상황 선택
-            </h3>
-            <div className="space-y-3 mb-8">
-              {situations.map((sit) => (
-                <div
-                  key={sit.id}
-                  onClick={() => handleSelectSituation(sit.id)}
-                  className="p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 cursor-pointer transition-all"
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-2xl">{sit.icon}</span>
-                    <h4 className="font-bold text-gray-800">{sit.title}</h4>
-                  </div>
-                  <p className="text-sm text-gray-600">{sit.description}</p>
-                </div>
-              ))}
-            </div>
-
-            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <History className="w-5 h-5 text-purple-500" /> 이전 대화 기록
-            </h3>
-            <div className="space-y-2">
-              {myRooms.map((room) => (
-                <div
-                  key={room.chatRoomId}
-                  onClick={() => handleLoadPastRoom(room)}
-                  className={`p-3 rounded-lg border cursor-pointer hover:bg-gray-50 transition-all ${
-                    currentRoomId === room.chatRoomId ? "border-purple-400 bg-purple-50" : "border-gray-100 bg-white"
-                  }`}
-                >
-                  <p className="font-bold text-xs text-purple-600 mb-1">{room.situationTitle}</p>
-                  <p className="text-xs text-gray-500 truncate">
-                    {room.messages[room.messages.length - 1]?.content || "대화 내용 없음"}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 오른쪽 채팅 영역 */}
-      <div className="flex-1 flex flex-col">
-        {/* 상단 헤더 컴포넌트 */}
+      {/* 2. 중앙 영역: 헤더 + 대화창 + 입력창 */}
+      <div className="flex-1 flex flex-col min-w-0 bg-white">
         <AIChattingHeader
           showChat={showChat} 
           setShowChat={setShowChat} 
@@ -174,9 +131,7 @@ const AICoachChat = () => {
                     </div>
                     <div className="flex flex-col">
                       <div className={`px-4 py-3 rounded-2xl shadow-sm whitespace-pre-wrap ${
-                        msg.type === "USER" 
-                        ? "bg-green-400 text-white rounded-tr-sm" 
-                        : "bg-white text-gray-800 rounded-tl-sm border border-gray-100"
+                        msg.type === "USER" ? "bg-green-400 text-white rounded-tr-sm" : "bg-white text-gray-800 rounded-tl-sm border border-gray-100"
                       }`}>
                         {msg.content}
                       </div>
@@ -215,32 +170,30 @@ const AICoachChat = () => {
                 }
               }}
               disabled={!currentRoomId || isLoading}
-              placeholder={currentRoomId ? "메시지를 입력해보세요... (Shift+Enter 줄바꿈)" : "상황을 선택해주세요."}
-              className="flex-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-400 outline-none resize-none overflow-hidden min-h-[50px] max-h-[150px]"
+              placeholder={currentRoomId ? "메시지를 입력해보세요..." : "상황을 선택해주세요."}
+              className="flex-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-400 outline-none resize-none min-h-[50px] max-h-[150px]"
             />
             <button
               onClick={handleSendMessage}
               disabled={!currentRoomId || isLoading || !inputText.trim()}
-              className="px-6 bg-green-400 text-white rounded-xl hover:bg-green-500 transition-all disabled:bg-gray-200"
+              className="px-6 bg-green-400 text-white rounded-xl hover:bg-green-500 disabled:bg-gray-200"
             >
               <Send className="w-5 h-5" />
             </button>
           </div>
         </div>
       </div>
-      
-      {/* 도움말 모달 */}
-      <AIChatHelpModal 
-        isOpen={showHelp} 
-        onClose={() => setShowHelp(false)} 
-      />
 
-      {/* 대화 종료 모달 */}
-      <ChattingEndModal
-        isOpen={isEndModalOpen}
-        onClose={() => setIsEndModalOpen(false)}
-        roomId={currentRoomId}
+      {/* 오른쪽 사이드바: 히스토리 */}
+      <ChatHistorySidebar 
+        myRooms={myRooms} 
+        currentRoomId={currentRoomId} 
+        onLoadPastRoom={handleLoadPastRoom} 
       />
+      
+      {/* 모달 영역 */}
+      <AIChatHelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
+      <ChattingEndModal isOpen={isEndModalOpen} onClose={() => setIsEndModalOpen(false)} roomId={currentRoomId} />
     </div>
   );
 };
