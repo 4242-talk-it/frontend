@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { MessageCircle, RotateCcw, HelpCircle, Send, History } from "lucide-react";
-import axios from "../api/axiosInstance";
+import axios from "../../api/axiosInstance";
 
 const AICoachChat = () => {
   const [showChat, setShowChat] = useState(true);

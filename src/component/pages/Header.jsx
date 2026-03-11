@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../slices/loginSlice";
-import axiosInstance from "../api/axiosInstance";
+import { logout } from "../../slices/loginSlice";
+import axiosInstance from "../../api/axiosInstance";
 
 const Header = () => {
   const navigate = useNavigate();
