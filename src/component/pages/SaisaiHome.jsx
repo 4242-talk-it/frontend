@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import axiosInstance from "../api/axiosInstance";
+import axiosInstance from "../../api/axiosInstance";
 import { Home, MessageCircle, BarChart3, User, Play, Search, Bell, Award, Calendar, Sparkles } from 'lucide-react';
 
 const SaisaiHome = () => {

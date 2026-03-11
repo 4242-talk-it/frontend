@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../slices/loginSlice';
-import axiosInstance from '../api/axiosInstance';
+import { loginSuccess } from '../../slices/loginSlice';
+import axiosInstance from '../../api/axiosInstance';
 
 const Login = () => {
   const navigate = useNavigate();
