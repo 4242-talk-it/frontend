@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { X, List, RefreshCw, ChevronDown, Send } from "lucide-react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import TopicSelectionModal from "./modal/TopicSelectionModal";
-import ChattingEndModal from "./modal/ChattingEndModal";
-import CreateChatRoom from "./modal/CreateChatRoom";
-import ChattingExtendModal from "./modal/ChattingExtendModal";
+import TopicSelectionModal from "./modal/TopicSelectionModal.jsx";
+import ChattingEndModal from "./userchat/UserChattingEndModal.jsx";
+import CreateChatRoom from "./modal/CreateChatRoom.jsx";
+import ChattingExtendModal from "./modal/ChattingExtendModal.jsx";
 import ChattingExtendWaitingModal from "./modal/ChattingExtendWaitingModal.jsx";
 
 const Chattingpage = () => {
@@ -23,7 +23,6 @@ const Chattingpage = () => {
   const [dbTopics, setDbTopics] = useState([]);
 
   const [missionKeyword, setMissionKeyword] = useState("");
-  const dummyMissions = ["사과", "노트북", "갑자기", "대박", "비행기", "퇴근"];
 
   const isMounted = useRef(false);
   const userIdRef = useRef(null);
@@ -99,28 +98,15 @@ const Chattingpage = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  //   useEffect(() => {
-  //   if (isMatched && !missionKeyword) {
-  //     fetch("/api/user-chat/mission/random")
-  //       .then((res) => res.text()) // ResponseEntity<String>이므로 .text()
-  //       .then((data) => {
-  //         setMissionKeyword(data);
-  //       })
-  //       .catch((err) => {
-  //         console.error("미션 키워드를 가져오지 못했습니다:", err);
-  //         setMissionKeyword("대화"); // 에러 시 폴백용
-  //       });
-  //   }
-  // }, [isMatched]);
-
   // messages 배열이 바뀔 때마다 스크롤 함수 실행
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
   useEffect(() => {
-    userIdRef.current = userId;
-  }, [userId]);
+  userIdRef.current = userId;
+}, [userId]);
+
 
   const initMatch = async (selectedTopic) => {
     try {
@@ -206,6 +192,7 @@ const Chattingpage = () => {
       webSocketFactory: () => socket,
       onConnect: () => {
         stompClient.current.subscribe(`/sub/room/${id}`, (frame) => {
+          
           if (frame.body === "MATCH_COMPLETE") {
             console.log("매칭 완료 신호 수신 (String)");
             setIsMatched(true);
@@ -227,8 +214,8 @@ const Chattingpage = () => {
               }
 
               if (data.type === "EXTEND_REJECTED") {
-                setShowExtendWaitingModal(false);
-                setShowExtendModal(false);
+                setShowExtendWaitingModal(false); 
+                setShowExtendModal(false); 
                 setShowChatEnd(true);
                 return;
               }
@@ -299,19 +286,20 @@ const Chattingpage = () => {
     if (!trimmedText || !isMatched || !stompClient.current || !userId) return;
     if (myContinuousCount >= 3) {
       alert("상대방의 대답을 기다려야 합니다."); // 방어 코드
-      return;
-    }
-
-    stompClient.current.publish({
-      destination: `/pub/room/${roomId}/message`,
-      body: JSON.stringify({ message: inputText }),
-      headers: { userId: String(userId) },
-    });
-    setMyContinuousCount((prev) => {
+    return;
+  }
+    
+      stompClient.current.publish({
+        destination: `/pub/room/${roomId}/message`,
+        body: JSON.stringify({ message: inputText }),
+        headers: { userId: String(userId) },
+      });
+      setMyContinuousCount((prev) => {
       const newCount = prev + 1;
       return newCount;
     });
-    setInputText("");
+      setInputText("");
+    
   };
 
   const handleExtendChat = () => {
