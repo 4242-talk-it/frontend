@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import axios from "axios";
 
-const ChattingEndModal = ({ isOpen, onClose, roomId }) => {
+const UserChattingEndModal = ({ isOpen, onClose, roomId }) => {
   const [selectedEmotion, setSelectedEmotion] = useState(null);
 
   const emotions = [
@@ -81,4 +81,4 @@ const ChattingEndModal = ({ isOpen, onClose, roomId }) => {
   );
 };
 
-export default ChattingEndModal;
+export default UserChattingEndModal;
