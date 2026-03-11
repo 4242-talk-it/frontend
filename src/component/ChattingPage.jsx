@@ -3,9 +3,9 @@ import { X, List, RefreshCw, ChevronDown, Send } from "lucide-react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import TopicSelectionModal from "./modal/TopicSelectionModal";
-import ChattingEndModal from "./modal/ChattingEndModal";
+import ChattingEndModal from "./userchat/UserChattingEndModal.jsx";
 import CreateChatRoom from "./modal/CreateChatRoom";
-import ChattingExtendModal from "./modal/ChattingExtendModal";
+import ChattingExtendModal from "./modal/ChattingExtendModal.jsx";
 import ChattingExtendWaitingModal from "./modal/ChattingExtendWaitingModal.jsx";
 
 const Chattingpage = () => {
