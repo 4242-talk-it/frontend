@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { MessageCircle, RotateCcw, HelpCircle, Send, History } from "lucide-react";
 import axios from "../../api/axiosInstance";
+import AIChattingHeader from "./AIChattingHeader";
+import ChattingEndModal from "./AIChatEndModal";
+import AIChatHelpModal from "../modal/ChattingHelpModal";
 
 const AICoachChat = () => {
-  const [showChat, setShowChat] = useState(true);
+  const [showChat, setShowChat] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -12,6 +15,7 @@ const AICoachChat = () => {
   const [myRooms, setMyRooms] = useState([]);
   const [currentRoomId, setCurrentRoomId] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [isEndModalOpen, setIsEndModalOpen] = useState(false); 
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -99,7 +103,6 @@ const AICoachChat = () => {
           </button>
         </div>
 
-        {/* 상황 선택 & 이전 기록 스크롤 영역 */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6">
             <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
@@ -121,7 +124,6 @@ const AICoachChat = () => {
               ))}
             </div>
 
-            {/* 이전 기록 섹션 추가 */}
             <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
               <History className="w-5 h-5 text-purple-500" /> 이전 대화 기록
             </h3>
@@ -147,21 +149,14 @@ const AICoachChat = () => {
 
       {/* 오른쪽 채팅 영역 */}
       <div className="flex-1 flex flex-col">
-        {/* 상단 헤더 */}
-        <div className="bg-white border-b px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-400 rounded-full flex items-center justify-center text-white font-bold">AI</div>
-            <div>
-              <h3 className="font-bold text-gray-800">사이사이 AI 코치</h3>
-              <p className="text-sm text-blue-500">연습 도우미 활성화</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button onClick={() => setShowChat(!showChat)} className="p-3 rounded-full bg-blue-100 text-blue-600"><MessageCircle className="w-5 h-5" /></button>
-            <button onClick={handleReset} className="p-3 rounded-full bg-gray-100 text-gray-600"><RotateCcw className="w-5 h-5" /></button>
-            <button onClick={() => setShowHelp(true)} className="p-3 rounded-full bg-red-100 text-red-600"><HelpCircle className="w-5 h-5" /></button>
-          </div>
-        </div>
+        {/* 상단 헤더 컴포넌트 */}
+        <AIChattingHeader
+          showChat={showChat} 
+          setShowChat={setShowChat} 
+          handleReset={handleReset} 
+          setShowHelp={setShowHelp}
+          setIsEndModalOpen={setIsEndModalOpen}
+        />
 
         {/* 메시지 영역 */}
         {showChat ? (
@@ -178,7 +173,6 @@ const AICoachChat = () => {
                       <span className="text-white font-bold text-xs">{msg.type === "AI" ? "AI" : "나"}</span>
                     </div>
                     <div className="flex flex-col">
-                      {/* whitespace-pre-wrap 추가: 줄바꿈이 그대로 보입니다 */}
                       <div className={`px-4 py-3 rounded-2xl shadow-sm whitespace-pre-wrap ${
                         msg.type === "USER" 
                         ? "bg-green-400 text-white rounded-tr-sm" 
@@ -202,8 +196,8 @@ const AICoachChat = () => {
             )}
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-400 bg-gray-50">
-            채팅화면 버튼을 눌러주세요
+          <div className="flex-1 flex items-center justify-center text-gray-400 bg-gray-50 whitespace-pre-wrap text-center">
+            {"왼쪽 사이드 바에 있는 상황을 선택하여 \n AI와 대화 연습을 시작해보세요! 😊"}
           </div>
         )}
 
@@ -235,16 +229,18 @@ const AICoachChat = () => {
         </div>
       </div>
       
-      {/* 도움말 모달 (showHelp 상태에 따라 렌더링 - 기존 UI 유지) */}
-      {showHelp && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-2xl p-8 max-w-md w-full">
-                  <h2 className="text-xl font-bold mb-4">💡 도움말</h2>
-                  <p className="text-gray-600 mb-6 text-sm leading-relaxed">상황을 선택하면 대화 연습을 시작할 수 있습니다. AI 코치가 실시간으로 여러분의 대화를 도와드립니다.</p>
-                  <button onClick={() => setShowHelp(false)} className="w-full bg-green-400 text-white py-3 rounded-lg font-bold">확인</button>
-              </div>
-          </div>
-      )}
+      {/* 도움말 모달 */}
+      <AIChatHelpModal 
+        isOpen={showHelp} 
+        onClose={() => setShowHelp(false)} 
+      />
+
+      {/* 대화 종료 모달 */}
+      <ChattingEndModal
+        isOpen={isEndModalOpen}
+        onClose={() => setIsEndModalOpen(false)}
+        roomId={currentRoomId}
+      />
     </div>
   );
 };
