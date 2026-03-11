@@ -22,6 +22,9 @@ const Chattingpage = () => {
   const [showExtendWaitingModal, setShowExtendWaitingModal] = useState(false);
   const [dbTopics, setDbTopics] = useState([]);
 
+  const [missionKeyword, setMissionKeyword] = useState("");
+  const dummyMissions = ["사과", "노트북", "갑자기", "대박", "비행기", "퇴근"];
+
   const isMounted = useRef(false);
   const userIdRef = useRef(null);
 
@@ -87,9 +90,28 @@ const Chattingpage = () => {
     };
   }, []);
 
+  useEffect(() => {
+  console.log("🧩 현재 미션 키워드 상태:", missionKeyword);
+  console.log("🤝 현재 매칭 상태:", isMatched);
+}, [missionKeyword, isMatched]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  //   useEffect(() => {
+  //   if (isMatched && !missionKeyword) {
+  //     fetch("/api/user-chat/mission/random")
+  //       .then((res) => res.text()) // ResponseEntity<String>이므로 .text()
+  //       .then((data) => {
+  //         setMissionKeyword(data);
+  //       })
+  //       .catch((err) => {
+  //         console.error("미션 키워드를 가져오지 못했습니다:", err);
+  //         setMissionKeyword("대화"); // 에러 시 폴백용
+  //       });
+  //   }
+  // }, [isMatched]);
 
   // messages 배열이 바뀔 때마다 스크롤 함수 실행
   useEffect(() => {
@@ -97,9 +119,8 @@ const Chattingpage = () => {
   }, [messages]);
 
   useEffect(() => {
-  userIdRef.current = userId;
-}, [userId]);
-
+    userIdRef.current = userId;
+  }, [userId]);
 
   const initMatch = async (selectedTopic) => {
     try {
@@ -126,6 +147,10 @@ const Chattingpage = () => {
 
         connect(data.roomId);
         loadHistory(data.roomId);
+
+        if (data.missionKeyword) {
+          setMissionKeyword(data.missionKeyword);
+        }
       }
     } catch (error) {
       console.error("매칭 실패:", error);
@@ -181,10 +206,12 @@ const Chattingpage = () => {
       webSocketFactory: () => socket,
       onConnect: () => {
         stompClient.current.subscribe(`/sub/room/${id}`, (frame) => {
-          
           if (frame.body === "MATCH_COMPLETE") {
             console.log("매칭 완료 신호 수신 (String)");
             setIsMatched(true);
+
+            fetchRoomInfo(id);
+
             return;
           } else {
             try {
@@ -200,8 +227,8 @@ const Chattingpage = () => {
               }
 
               if (data.type === "EXTEND_REJECTED") {
-                setShowExtendWaitingModal(false); 
-                setShowExtendModal(false); 
+                setShowExtendWaitingModal(false);
+                setShowExtendModal(false);
                 setShowChatEnd(true);
                 return;
               }
@@ -247,6 +274,22 @@ const Chattingpage = () => {
     stompClient.current.activate();
   };
 
+  const fetchRoomInfo = async (id) => {
+    try {
+      const response = await fetch(`/api/user-chat/room/${id}/info`);
+      const data = await response.json();
+
+      if (data.missionKeyword) {
+        setMissionKeyword(data.missionKeyword); // 드디어 User 1에게도 '아이돌'이 세팅됨!
+      }
+      if (data.maxTurns) {
+        setMaxTurns(data.maxTurns);
+      }
+    } catch (error) {
+      console.error("방 정보 로드 실패:", error);
+    }
+  };
+
   const disconnect = () => {
     if (stompClient.current) stompClient.current.deactivate();
   };
@@ -256,20 +299,19 @@ const Chattingpage = () => {
     if (!trimmedText || !isMatched || !stompClient.current || !userId) return;
     if (myContinuousCount >= 3) {
       alert("상대방의 대답을 기다려야 합니다."); // 방어 코드
-    return;
-  }
-    
-      stompClient.current.publish({
-        destination: `/pub/room/${roomId}/message`,
-        body: JSON.stringify({ message: inputText }),
-        headers: { userId: String(userId) },
-      });
-      setMyContinuousCount((prev) => {
+      return;
+    }
+
+    stompClient.current.publish({
+      destination: `/pub/room/${roomId}/message`,
+      body: JSON.stringify({ message: inputText }),
+      headers: { userId: String(userId) },
+    });
+    setMyContinuousCount((prev) => {
       const newCount = prev + 1;
       return newCount;
     });
-      setInputText("");
-    
+    setInputText("");
   };
 
   const handleExtendChat = () => {
@@ -379,6 +421,17 @@ const Chattingpage = () => {
 
             {/* Input Area */}
             <div className="border-t p-3 sm:p-4 bg-white">
+              {missionKeyword && (
+                <div className="flex justify-start mb-2">
+                  <p className="text-[11px] sm:text-xs text-gray-400 px-3 py-1 rounded-full">
+                    🎯 키워드 미션:{" "}
+                    <span className="font-bold text-blue-500">
+                      {missionKeyword}
+                    </span>
+                  </p>
+                </div>
+              )}
+
               <div className="flex gap-2">
                 <input
                   type="text"
