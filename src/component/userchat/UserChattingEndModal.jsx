@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X, CheckCircle2 } from "lucide-react";
 import axios from "axios";
 
-const ChattingEndModal = ({ isOpen, onClose, roomId }) => {
+const UserChattingEndModal = ({ isOpen, onClose, roomId }) => {
   const [selectedEmotion, setSelectedEmotion] = useState(null);
   const [step, setStep] = useState("mission");
   const [options, setOptions] = useState([]);
@@ -124,4 +124,4 @@ const ChattingEndModal = ({ isOpen, onClose, roomId }) => {
   );
 };
 
-export default ChattingEndModal;
+export default UserChattingEndModal;
