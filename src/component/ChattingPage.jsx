@@ -11,7 +11,7 @@ import ChattingExtendWaitingModal from "./modal/ChattingExtendWaitingModal.jsx";
 const Chattingpage = () => {
   const [showChatEnd, setShowChatEnd] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [turnCount, setTurnCount] = useState(0);
+  const [setTurnCount] = useState(0);
 
   const [maxTurns, setMaxTurns] = useState(3); //메세지 전체 개수 제한
   const [myContinuousCount, setMyContinuousCount] = useState(0); //연속 전송 회수
@@ -21,6 +21,8 @@ const Chattingpage = () => {
   const [showExtendModal, setShowExtendModal] = useState(false);
   const [showExtendWaitingModal, setShowExtendWaitingModal] = useState(false);
   const [dbTopics, setDbTopics] = useState([]);
+
+  const [missionKeyword, setMissionKeyword] = useState("");
 
   const isMounted = useRef(false);
   const userIdRef = useRef(null);
@@ -87,6 +89,11 @@ const Chattingpage = () => {
     };
   }, []);
 
+  useEffect(() => {
+  console.log("🧩 현재 미션 키워드 상태:", missionKeyword);
+  console.log("🤝 현재 매칭 상태:", isMatched);
+}, [missionKeyword, isMatched]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -126,6 +133,10 @@ const Chattingpage = () => {
 
         connect(data.roomId);
         loadHistory(data.roomId);
+
+        if (data.missionKeyword) {
+          setMissionKeyword(data.missionKeyword);
+        }
       }
     } catch (error) {
       console.error("매칭 실패:", error);
@@ -185,6 +196,9 @@ const Chattingpage = () => {
           if (frame.body === "MATCH_COMPLETE") {
             console.log("매칭 완료 신호 수신 (String)");
             setIsMatched(true);
+
+            fetchRoomInfo(id);
+
             return;
           } else {
             try {
@@ -245,6 +259,22 @@ const Chattingpage = () => {
       },
     });
     stompClient.current.activate();
+  };
+
+  const fetchRoomInfo = async (id) => {
+    try {
+      const response = await fetch(`/api/user-chat/room/${id}/info`);
+      const data = await response.json();
+
+      if (data.missionKeyword) {
+        setMissionKeyword(data.missionKeyword); // 드디어 User 1에게도 '아이돌'이 세팅됨!
+      }
+      if (data.maxTurns) {
+        setMaxTurns(data.maxTurns);
+      }
+    } catch (error) {
+      console.error("방 정보 로드 실패:", error);
+    }
   };
 
   const disconnect = () => {
@@ -379,6 +409,17 @@ const Chattingpage = () => {
 
             {/* Input Area */}
             <div className="border-t p-3 sm:p-4 bg-white">
+              {missionKeyword && (
+                <div className="flex justify-start mb-2">
+                  <p className="text-[11px] sm:text-xs text-gray-400 px-3 py-1 rounded-full">
+                    🎯 키워드 미션:{" "}
+                    <span className="font-bold text-blue-500">
+                      {missionKeyword}
+                    </span>
+                  </p>
+                </div>
+              )}
+
               <div className="flex gap-2">
                 <input
                   type="text"

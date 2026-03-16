@@ -12,18 +12,7 @@ import MyPage from "../component/mypage/MyPage";
 import AIChattingPage from "../component/aichat/AIChattingPage";
 import AuthenticatedRoute from "./AuthenticatedRoute";
 import Header from "../component/pages/Header";
-
-// 공통 레이아웃 (헤더가 필요한 페이지용)
-const Layout = () => {
-  return (
-    <>
-      <Header />
-      <main>
-        <Outlet />
-      </main>
-    </>
-  );
-};
+import Layout from "./Layout"
 
 const router = createBrowserRouter([
   {
