@@ -3,7 +3,7 @@ import LandingPage from "../component/pages/LandingPage";
 import SaisaiHome from "../component/pages/SaisaiHome";
 import Login from "../component/pages/Login";
 import Signup from "../component/pages/Signup";
-import ChattingPage from "../component/ChattingPage";  
+import ChattingPage from "../component/ChattingPage"; 
 import CommunityListPage from "../component/community/CommunityListPage";
 import CommunityCreate from "../component/community/CommunityCreate";
 import CommunityDetail from "../component/community/CommunityDetail";
@@ -12,18 +12,7 @@ import MyPage from "../component/mypage/MyPage";
 import AIChattingPage from "../component/aichat/AIChattingPage";
 import AuthenticatedRoute from "./AuthenticatedRoute";
 import Header from "../component/pages/Header";
-
-// 공통 레이아웃 (헤더가 필요한 페이지용)
-const Layout = () => {
-  return (
-    <>
-      <Header />
-      <main>
-        <Outlet />
-      </main>
-    </>
-  );
-};
+import Layout from "./Layout"
 
 const router = createBrowserRouter([
   {

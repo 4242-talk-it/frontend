@@ -33,9 +33,12 @@ const UserChattingEndModal = ({ isOpen, onClose, roomId }) => {
     } catch (error) {
       console.error("미션 제출 실패:", error);
     } finally {
-      // 성공 여부와 상관없이 바로 다음 리뷰 단계로 이동
       setStep("review");
     }
+  };
+
+  const toggleEmotion = (emotionText) => {
+    setSelectedEmotion((prev) => (prev === emotionText ? null : emotionText));
   };
 
   const handleSubmit = async () => {
@@ -57,10 +60,6 @@ const UserChattingEndModal = ({ isOpen, onClose, roomId }) => {
     }
   };
 
-  const toggleEmotion = (emotionText) => {
-    setSelectedEmotion((prev) => (prev === emotionText ? null : emotionText));
-  };
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-xl">
@@ -73,7 +72,7 @@ const UserChattingEndModal = ({ isOpen, onClose, roomId }) => {
               {options.map((opt, idx) => (
                 <button
                   key={idx}
-                  onClick={() => handleMissionSubmit(opt)} // 함수 이름 수정됨
+                  onClick={() => handleMissionSubmit(opt)}
                   className="py-3 px-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-sm font-medium"
                 >
                   {opt}
@@ -89,10 +88,6 @@ const UserChattingEndModal = ({ isOpen, onClose, roomId }) => {
             <p className="text-center text-gray-600 mb-2 text-sm sm:text-base">
               상대방과의 대화는 어떠셨나요?
             </p>
-            <p className="text-center text-gray-500 mb-6 text-xs sm:text-sm">
-              솔직한 감정을 선택해주세요.
-            </p>
-
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6">
               {emotions.map((emotion, idx) => (
                 <button
@@ -108,11 +103,16 @@ const UserChattingEndModal = ({ isOpen, onClose, roomId }) => {
                 </button>
               ))}
             </div>
-
-            <div className="flex gap-2 sm:gap-3">
+            <div className="flex gap-3">
+              <button
+                onClick={onClose}
+                className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+              >
+                더 연습할래요
+              </button>
               <button
                 onClick={handleSubmit}
-                className="flex-1 px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-medium text-white bg-blue-500 hover:bg-blue-600 transition-colors"
+                className="flex-1 py-3 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-colors shadow-lg shadow-blue-100"
               >
                 종료
               </button>

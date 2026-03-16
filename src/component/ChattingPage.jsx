@@ -2,16 +2,16 @@ import React, { useState, useEffect, useRef } from "react";
 import { X, List, RefreshCw, ChevronDown, Send } from "lucide-react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import TopicSelectionModal from "./modal/TopicSelectionModal.jsx";
+import TopicSelectionModal from "./modal/TopicSelectionModal";
 import ChattingEndModal from "./userchat/UserChattingEndModal.jsx";
-import CreateChatRoom from "./modal/CreateChatRoom.jsx";
+import CreateChatRoom from "./modal/CreateChatRoom";
 import ChattingExtendModal from "./modal/ChattingExtendModal.jsx";
 import ChattingExtendWaitingModal from "./modal/ChattingExtendWaitingModal.jsx";
 
 const Chattingpage = () => {
   const [showChatEnd, setShowChatEnd] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [turnCount, setTurnCount] = useState(0);
+  const [setTurnCount] = useState(0);
 
   const [maxTurns, setMaxTurns] = useState(3); //메세지 전체 개수 제한
   const [myContinuousCount, setMyContinuousCount] = useState(0); //연속 전송 회수
