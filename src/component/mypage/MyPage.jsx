@@ -14,6 +14,9 @@ const MyPage = () => {
 
   const { userId, email, nickname } = useSelector((state) => state.login);
   
+  const loginState = useSelector((state) => state.login);
+  console.log('login state:', loginState);
+
   const currentUser = { userId, email, nickname };
 
   const [activeTab, setActiveTab] = useState('records');
@@ -72,13 +75,6 @@ const MyPage = () => {
     { name: '긍정적', value: 45, color: '#10B981' },
     { name: '보통', value: 35, color: '#6B7280' },
     { name: '부정적', value: 20, color: '#EF4444' }
-  ];
-
-  const badges = [
-    { id: 1, name: '대화왕', icon: '👑', unlocked: true, description: '100회 대화 달성' },
-    { id: 2, name: '공감마스터', icon: '❤️', unlocked: true, description: '공감 표현 50회' },
-    { id: 3, name: '질문왕', icon: '❓', unlocked: false, description: '질문하기 100회' },
-    { id: 4, name: '성장러', icon: '🌱', unlocked: true, description: '한 달 연속 사용' },
   ];
 
   const handleUpdateNickname = async (updatedNickname) => {
@@ -152,7 +148,7 @@ const MyPage = () => {
             <GrowthTab 
               growthData={growthData} 
               emotionData={emotionData} 
-              badges={badges} 
+              userId={userId} 
             />
           )}
           {activeTab === 'settings' && (

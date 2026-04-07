@@ -11,7 +11,7 @@ import ChattingExtendWaitingModal from "./modal/ChattingExtendWaitingModal.jsx";
 const Chattingpage = () => {
   const [showChatEnd, setShowChatEnd] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [setTurnCount] = useState(0);
+  const [turnCount,setTurnCount] = useState(0);
 
   const [maxTurns, setMaxTurns] = useState(3); //메세지 전체 개수 제한
   const [myContinuousCount, setMyContinuousCount] = useState(0); //연속 전송 회수
