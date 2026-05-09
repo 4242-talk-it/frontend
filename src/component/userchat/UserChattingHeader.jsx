@@ -68,13 +68,6 @@ const ForceEndModal = ({ onConfirm, onCancel }) => {
   );
 };
 
-/**
- * UserChattingHeader
- *
- * Props:
- *   topic         {string}   현재 채팅방 주제 (예: "일상", "연애상담")
- *   onForceEnd    {function} 강제 종료 확인 시 호출될 콜백
- */
 const UserChattingHeader = ({ topic, onForceEnd }) => {
   const [showHelp, setShowHelp] = useState(false);
   const [showForceEnd, setShowForceEnd] = useState(false);
@@ -90,7 +83,6 @@ const UserChattingHeader = ({ topic, onForceEnd }) => {
   return (
     <>
       <div className="bg-white border-b px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-        {/* 왼쪽: 채팅방 주제 */}
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-400 to-blue-400 rounded-full flex items-center justify-center">
             <Hash className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
@@ -103,9 +95,7 @@ const UserChattingHeader = ({ topic, onForceEnd }) => {
           </div>
         </div>
 
-        {/* 오른쪽: 버튼 그룹 */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* 도움말 버튼 */}
           <div className="relative group">
             <button
               onClick={() => setShowHelp(true)}
@@ -116,7 +106,6 @@ const UserChattingHeader = ({ topic, onForceEnd }) => {
             <span className={tooltipStyle}>도움말 보기</span>
           </div>
 
-          {/* 강제 종료 버튼 */}
           <div className="relative group">
             <button
               onClick={() => setShowForceEnd(true)}
@@ -129,10 +118,8 @@ const UserChattingHeader = ({ topic, onForceEnd }) => {
         </div>
       </div>
 
-      {/* 도움말 모달 */}
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
 
-      {/* 강제 종료 확인 모달 */}
       {showForceEnd && (
         <ForceEndModal
           onConfirm={handleConfirmEnd}

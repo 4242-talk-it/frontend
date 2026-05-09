@@ -28,8 +28,6 @@ const MyPage = () => {
     {name: '부정적', value: stats.negativeCount || 0, color: '#EF4444'},
   ] : [];
 
-  const loginState = useSelector((state) => state.login);
-  console.log('login state:', loginState);
 
   const currentUser = { userId, email, nickname };
 
@@ -39,13 +37,11 @@ const MyPage = () => {
     soundAlerts: false,
     dataAnalytics: true
   });
-
-  // --- 임시 데이터 ---
   
 
   const growthData = stats?.monthlyTemperatures?.length > 0
   ? stats.monthlyTemperatures.map(item => ({
-      month: item.month,      // "2025-01" 형태
+      month: item.month,      
       score: item.avgTemp,
     }))
   : [];

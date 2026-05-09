@@ -1,6 +1,5 @@
-// 대화 기록 리스트 및 모달
 import React, { useState, useEffect } from "react";
-import { MessageCircle, Clock, Smile, Frown, Meh } from "lucide-react";
+import { Clock, Smile, Frown, Meh } from "lucide-react";
 
 const RecordsTab = () => {
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -95,13 +94,6 @@ const RecordsTab = () => {
       ]);
       const detail = await detailRes.json();
       const messages = await messagesRes.json();
-
-      console.log("detail.myUserId:", detail.myUserId);
-      console.log("messages[0].senderId:", messages[0]?.senderId);
-      console.log(
-        "일치 여부:",
-        String(messages[0]?.senderId) === String(detail.myUserId),
-      );
 
       setSelectedRoom({ conv, detail, messages });
     } catch (e) {
@@ -224,7 +216,6 @@ const RecordsTab = () => {
                         </span>
                       )}
 
-                      {/* 말풍선 + 시간 가로 배치 */}
                       <div
                         className={`flex items-end gap-1 ${isMine ? "flex-row-reverse" : "flex-row"}`}
                       >
@@ -247,7 +238,6 @@ const RecordsTab = () => {
               })}
             </div>
 
-            {/* 미션 & 결과 정보 */}
             <div className="bg-gray-50 rounded-b-xl px-6 py-4 space-y-2 text-sm flex-shrink-0 border-t">
               <div className="flex justify-between">
                 <span className="text-gray-500">내 키워드 미션</span>
@@ -278,7 +268,6 @@ const RecordsTab = () => {
                 );
               })()}
 
-              {/* 특별 태그 */}
               {(selectedRoom.detail.specialTag1 ||
                 selectedRoom.detail.specialTag2) && (
                 <div className="flex justify-between items-start">
@@ -298,7 +287,6 @@ const RecordsTab = () => {
                 </div>
               )}
 
-              {/* 코멘트 */}
               {selectedRoom.detail.comment && (
                 <div className="flex flex-col gap-1">
                   <span className="text-gray-500">상대방 코멘트</span>

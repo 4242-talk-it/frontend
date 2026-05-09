@@ -141,13 +141,11 @@ const SettingsTab = ({
 
     
 
-      {/* ===== 모달 호출부 ===== */}
       <NicknameEditModal
         isOpen={isNicknameModalOpen}
         onClose={() => setIsNicknameModalOpen(false)}
         currentNickname={user.nickname}
         onSubmit={(nickname) => {
-          console.log('닉네임 변경:', nickname);
           handleUpdateNickname(nickname);
           setIsNicknameModalOpen(false);
         }}

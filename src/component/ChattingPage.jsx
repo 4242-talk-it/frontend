@@ -14,8 +14,7 @@ import ChatRoomSidebar from "./userchat/ChattingPageSideBar.jsx";
 const Chattingpage = () => {
   const [showChatEnd, setShowChatEnd] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [turnCount, setTurnCount] = useState(0);
-  const [maxTurns, setMaxTurns] = useState(3);
+  const [maxTurns, setMaxTurns] = useState(40);
   const [myContinuousCount, setMyContinuousCount] = useState(0);
   const [inputText, setInputText] = useState("");
   const [showTopicModal, setShowTopicModal] = useState(true);
@@ -79,13 +78,7 @@ const Chattingpage = () => {
 
   const handleSidebarRoomSelect = useCallback(
     async (room) => {
-      console.log(
-        `[handleSidebarRoomSelect] room.roomId: ${room.roomId}, 현재 roomIdRef.current: ${roomIdRef.current}`,
-      );
-      roomIdRef.current = room.roomId; // 먼저 갱신
-      console.log(
-        `[handleSidebarRoomSelect] roomIdRef 갱신 후: ${roomIdRef.current}`,
-      );
+      roomIdRef.current = room.roomId;
       disconnect();
       if (room.roomId && userId) {
         try {
@@ -141,6 +134,8 @@ const Chattingpage = () => {
         ),
       );
     },
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
     [userId],
   );
 
@@ -209,7 +204,7 @@ const Chattingpage = () => {
 
       const data = await response.json();
 
-      if (data && data.roomId) {
+      if (data?.roomId) {
         roomIdRef.current = data.roomId;
         setRoomId(data.roomId);
         setMaxTurns(data.maxTurns);
@@ -232,7 +227,6 @@ const Chattingpage = () => {
     try {
       const response = await fetch(`/api/user-chat/room/${id}/messages`);
       const history = await response.json();
-      console.log("history sample: ", history[0]);
       const historyArray = Array.isArray(history) ? history : [];
       setMessages(historyArray);
 
@@ -283,19 +277,11 @@ const Chattingpage = () => {
   };
 
   const connect = (id) => {
-    console.log(
-      `[connect] 호출됨 - id: ${id}, roomIdRef.current: ${roomIdRef.current}`,
-    );
     const socket = new SockJS("/ws");
     stompClient.current = new Client({
       webSocketFactory: () => socket,
       onConnect: () => {
-        console.log(
-          `[onConnect] 구독 등록 - id: ${id}, roomIdRef.current: ${roomIdRef.current}`,
-        );
-
         stompClient.current.subscribe(`/sub/room/${id}`, (frame) => {
-          console.log(`[/sub/room/${id}] 수신:`, frame.body);
           if (frame.body === "MATCH_COMPLETE") {
             setIsMatched(true);
             fetchRoomInfo(id);
@@ -390,7 +376,6 @@ const Chattingpage = () => {
         // 개인 사이드바 업데이트 구독
         const currentUserId = userIdRef.current;
         if (currentUserId) {
-          // ✅ sidebar 채널 별도 구독 (백엔드가 /sub/user/${id}/sidebar로 전송)
           stompClient.current.subscribe(
             `/sub/user/${currentUserId}/sidebar`,
             (frame) => {
@@ -407,8 +392,7 @@ const Chattingpage = () => {
                           hour: "2-digit",
                           minute: "2-digit",
                         }),
-                        hasUnread:
-                          data.roomId === roomIdRef.current ? false : true,
+                        hasUnread: data.roomId !== roomIdRef.current,
                       };
                     }
                     return r;
@@ -465,7 +449,7 @@ const Chattingpage = () => {
                             ...r,
                             pendingEvent: "CHAT_END",
                             pendingMax: currentMax,
-                            pendingForced: data.forced
+                            pendingForced: data.forced,
                           }
                         : r,
                     ),
@@ -548,18 +532,74 @@ const Chattingpage = () => {
     }
   };
 
-  const handleFeedbackSubmit = (feedbackData) => {
+  const handleFeedbackSubmit = () => {
     setShowFeedbackModal(false);
     setShowChatEnd(true);
   };
 
   const isBlurred = showChatEnd || showExtendModal || showFeedbackModal;
   const isInputDisabled = !isMatched || myContinuousCount >= 3;
-  let placeholderText = isMatched
-    ? myContinuousCount >= 3
-      ? "상대방의 대답을 기다려주세요."
-      : "메시지를 입력해주세요..."
-    : "매칭 대기 중...";
+  let placeholderText = "매칭 대기 중...";
+  if (isMatched) {
+    placeholderText =
+      myContinuousCount >= 3
+        ? "상대방의 대답을 기다려주세요."
+        : "메시지를 입력해주세요...";
+  }
+
+  const renderMessage = (msg) => {
+    if (msg.type === "system" || !msg.senderId) {
+      return (
+        <div className="text-center my-2">
+          <div
+            className={`inline-block px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm ${(msg.text || msg.message)?.includes("연장") ? "bg-green-50 text-green-600" : "bg-gray-100 text-gray-500"}`}
+          >
+            {msg.text || msg.message}
+          </div>
+        </div>
+      );
+    }
+
+    if (msg.senderId === Number(userId)) {
+      return (
+        <div className="flex justify-end mb-4">
+          <div className="flex flex-col items-end">
+            <div className="bg-green-400 rounded-2xl rounded-tr-sm px-3 sm:px-4 py-2 sm:py-3 max-w-md">
+              <p className="text-sm sm:text-base text-white">{msg.message}</p>
+            </div>
+            <p className="text-xs text-gray-400 mt-1 mr-2">
+              {new Date(msg.timestamp).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex gap-2 sm:gap-3 mb-4">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white text-[10px]">
+          {msg.senderNickname?.substring(0, 1)}
+        </div>
+        <div>
+          <div className="text-[10px] text-gray-500 mb-1 ml-1">
+            {msg.senderNickname}
+          </div>
+          <div className="bg-gray-100 rounded-2xl rounded-tl-sm px-3 sm:px-4 py-2 sm:py-3 max-w-md">
+            <p className="text-sm sm:text-base text-gray-800">{msg.message}</p>
+          </div>
+          <p className="text-xs text-gray-400 mt-1 ml-2">
+            {new Date(msg.timestamp).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </p>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div
@@ -600,60 +640,7 @@ const Chattingpage = () => {
               </div>
             </div>
             {messages.map((msg) => (
-              <div key={msg.cmid}>
-                {msg.type === "system" || !msg.senderId ? (
-                  <div className="text-center my-2">
-                    <div
-                      className={`inline-block px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm 
-      ${
-        (msg.text || msg.message)?.includes("연장")
-          ? "bg-green-50 text-green-600"
-          : "bg-gray-100 text-gray-500"
-      }`}
-                    >
-                      {msg.text || msg.message}
-                    </div>
-                  </div>
-                ) : msg.senderId === Number(userId) ? (
-                  <div className="flex justify-end mb-4">
-                    <div className="flex flex-col items-end">
-                      <div className="bg-green-400 rounded-2xl rounded-tr-sm px-3 sm:px-4 py-2 sm:py-3 max-w-md">
-                        <p className="text-sm sm:text-base text-white">
-                          {msg.message}
-                        </p>
-                      </div>
-                      <p className="text-xs text-gray-400 mt-1 mr-2">
-                        {new Date(msg.timestamp).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex gap-2 sm:gap-3 mb-4">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white text-[10px]">
-                      {msg.senderNickname?.substring(0, 1)}
-                    </div>
-                    <div>
-                      <div className="text-[10px] text-gray-500 mb-1 ml-1">
-                        {msg.senderNickname}
-                      </div>
-                      <div className="bg-gray-100 rounded-2xl rounded-tl-sm px-3 sm:px-4 py-2 sm:py-3 max-w-md">
-                        <p className="text-sm sm:text-base text-gray-800">
-                          {msg.message}
-                        </p>
-                      </div>
-                      <p className="text-xs text-gray-400 mt-1 ml-2">
-                        {new Date(msg.timestamp).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <div key={msg.cmid}>{renderMessage(msg)}</div>
             ))}
             <div ref={messagesEndRef} />
           </div>

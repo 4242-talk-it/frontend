@@ -1,14 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { MessageSquare, ChevronRight } from "lucide-react";
 
-/**
- * ChatRoomSidebar
- *
- * Props:
- *   rooms          {Array}   MyChatRoomResponse[] — roomId, topic, lastMessage, lastTime, unreadCount
- *   activeRoomId   {number}  현재 활성화된 채팅방 ID
- *   onSelectRoom   {function(room)} 다른 방 선택 시 콜백
- */
 const ChatRoomSidebar = ({ rooms = [], activeRoomId, onSelectRoom }) => {
   const listRef = useRef(null);
 
@@ -27,13 +19,10 @@ const ChatRoomSidebar = ({ rooms = [], activeRoomId, onSelectRoom }) => {
       <div className="px-4 py-3 border-b border-gray-100 bg-white flex items-center gap-2">
         <MessageSquare className="w-4 h-4 text-blue-500 shrink-0" />
         <span className="text-sm font-bold text-gray-700">내 채팅 목록</span>
-        {/* 전체 미읽음 뱃지 */}
         {rooms.some(r => r.hasUnread) && (
   <span className="ml-auto w-2 h-2 bg-red-500 rounded-full" />
 )}
       </div>
-
-      {/* 방 목록 (최신순 정렬은 부모에서 rooms를 정렬해서 내려줌) */}
       <div
         ref={listRef}
         onScroll={handleScroll}
@@ -60,7 +49,6 @@ const ChatRoomSidebar = ({ rooms = [], activeRoomId, onSelectRoom }) => {
                   }`}
               >
                 <div className="flex items-start gap-2.5">
-                  {/* 아바타 */}
                   <div
                     className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold mt-0.5
                       ${isActive
@@ -96,7 +84,6 @@ const ChatRoomSidebar = ({ rooms = [], activeRoomId, onSelectRoom }) => {
                   </div>
                 </div>
 
-                {/* 활성 방 표시 화살표 */}
                 {isActive && (
                   <ChevronRight className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-blue-400" />
                 )}
