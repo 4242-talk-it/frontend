@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MessageCircle, TrendingUp, Settings } from 'lucide-react';
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -13,9 +13,21 @@ const MyPage = () => {
   const navigate = useNavigate();
 
   const { userId, email, nickname } = useSelector((state) => state.login);
-  
-  const loginState = useSelector((state) => state.login);
-  console.log('login state:', loginState);
+  const [stats, setStats] = useState(null);
+
+  useEffect (() => {
+    if (!userId) return;
+    axiosInstance.get('/api/users/my-stats')
+    .then(res => setStats(res.data))
+    .catch(err => console.error('stats 로드 실패',err));
+  },[userId]);
+
+  const emotionData = stats ? [
+    {name: '긍정적', value: stats.positiveCount || 0, color: '#10B981'},
+    {name: '보통', value: stats.normalCount || 0, color: '#6B7280'},
+    {name: '부정적', value: stats.negativeCount || 0, color: '#EF4444'},
+  ] : [];
+
 
   const currentUser = { userId, email, nickname };
 
@@ -25,57 +37,14 @@ const MyPage = () => {
     soundAlerts: false,
     dataAnalytics: true
   });
+  
 
-  // --- 임시 데이터 ---
-  const conversationHistory = [
-    {
-      id: 1,
-      date: '2025-01-15',
-      topic: '취미 이야기',
-      keywords: ['영화', '음악', '독서'],
-      emotion: 'positive',
-      messageCount: 23,
-      duration: '15분',
-      messages: [
-        { from: 'user', text: '안녕하세요! 오늘은 어떤 이야기를 나눠볼까요?' },
-        { from: 'ai', text: '요즘 영화에 관심이 많아요. 최근에 본 영화 있으신가요?' },
-        { from: 'user', text: '최근에 듄2를 봤는데 정말 영상미가 대단하더라고요.' },
-      ],
-      feedback: {
-        style: '공감형 대화',
-        positive: ['적극적인 경청', '감정 표현이 풍부함'],
-        improve: ['질문을 더 구체적으로 해보세요']
-      }
-    },
-    {
-      id: 2,
-      date: '2025-01-14',
-      topic: '진로 고민',
-      keywords: ['직업', '미래', '계획'],
-      emotion: 'neutral',
-      messageCount: 31,
-      duration: '22분',
-      messages: [],
-      feedback: {
-        style: '분석형 대화',
-        positive: ['논리적 사고', '체계적 접근'],
-        improve: ['감정적 측면도 고려해보세요']
-      }
-    }
-  ];
-
-  const growthData = [
-    { month: '10월', score: 65 },
-    { month: '11월', score: 72 },
-    { month: '12월', score: 78 },
-    { month: '1월', score: 85 }
-  ];
-
-  const emotionData = [
-    { name: '긍정적', value: 45, color: '#10B981' },
-    { name: '보통', value: 35, color: '#6B7280' },
-    { name: '부정적', value: 20, color: '#EF4444' }
-  ];
+  const growthData = stats?.monthlyTemperatures?.length > 0
+  ? stats.monthlyTemperatures.map(item => ({
+      month: item.month,      
+      score: item.avgTemp,
+    }))
+  : [];
 
   const handleUpdateNickname = async (updatedNickname) => {
     try {
@@ -83,7 +52,7 @@ const MyPage = () => {
       dispatch(loginSuccess({ userId, email, nickname: response.data.data }));
       alert("닉네임이 수정되었습니다.");
     } catch (error) {
-      alert("수정 중 오류가 발생했습니다.");
+      alert("수정 중 오류가 발생했습니다.", error);
     }
   };
 
@@ -128,7 +97,7 @@ const MyPage = () => {
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-purple-600">LV.7</div>
+            <div className="text-2xl font-bold text-purple-600">{stats ? `${stats.temperature}°C` : ''} </div>
           </div>
         </div>
 
@@ -142,7 +111,7 @@ const MyPage = () => {
         {/* 탭 컨텐츠 */}
         <main>
           {activeTab === 'records' && (
-            <RecordsTab conversationHistory={conversationHistory} />
+            <RecordsTab/>
           )}
           {activeTab === 'growth' && (
             <GrowthTab 

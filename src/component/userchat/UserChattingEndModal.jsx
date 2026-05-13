@@ -105,12 +105,6 @@ const UserChattingEndModal = ({ isOpen, onClose, roomId }) => {
             </div>
             <div className="flex gap-3">
               <button
-                onClick={onClose}
-                className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-colors"
-              >
-                더 연습할래요
-              </button>
-              <button
                 onClick={handleSubmit}
                 className="flex-1 py-3 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-colors shadow-lg shadow-blue-100"
               >

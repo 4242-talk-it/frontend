@@ -6,8 +6,6 @@ import PasswordEditModal from '../modal/PasswordEditModal';
 
 const SettingsTab = ({
   user,
-  showSettings,
-  setShowSettings,
   handleUpdateNickname,
 }) => {
   const [isNicknameModalOpen, setIsNicknameModalOpen] = useState(false);
@@ -141,39 +139,13 @@ const SettingsTab = ({
   </div>
       </div>
 
-      {/* 환경 설정 */}
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">환경 설정</h2>
-        <div className="space-y-3">
-          {Object.entries(showSettings).map(([key, value]) => (
-            <div key={key} className="flex items-center justify-between">
-              <span className="text-gray-700">
-                {key === 'notifications'
-                  ? '알림 받기'
-                  : key === 'soundAlerts'
-                  ? '소리 알림'
-                  : '데이터 분석'}
-              </span>
-              <input
-                type="checkbox"
-                checked={value}
-                onChange={() =>
-                  setShowSettings((prev) => ({ ...prev, [key]: !prev[key] }))
-                }
-                className="w-5 h-5 text-purple-600 rounded"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
+    
 
-      {/* ===== 모달 호출부 ===== */}
       <NicknameEditModal
         isOpen={isNicknameModalOpen}
         onClose={() => setIsNicknameModalOpen(false)}
         currentNickname={user.nickname}
         onSubmit={(nickname) => {
-          console.log('닉네임 변경:', nickname);
           handleUpdateNickname(nickname);
           setIsNicknameModalOpen(false);
         }}
